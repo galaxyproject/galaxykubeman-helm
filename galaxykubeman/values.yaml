@@ -2,7 +2,7 @@ nfs:
   persistence:
     enabled: true
     storageClass: "standard"
-    size: "100Gi"
+    size: "500Gi"
   storageClass:
     create: true
     defaultClass: true
@@ -21,6 +21,7 @@ galaxy:
   persistence:
     accessMode: "ReadWriteMany"
     storageClass: "nfs"
+    size: "300Gi"
   ingress:
     enabled: false
   postgresql:
