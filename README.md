@@ -4,7 +4,7 @@ Helm chart for Galaxy KubeMan used for deploying Galaxy with NFS (for a multi-no
 ## TL;DR on GKE
 
 ```console
-gcloud container clusters create example-gke-cluster --cluster-version=1.15.7-gke.23 --no-enable-autorepair --disk-size=100 --num-nodes=2 --machine-type=n1-standard-4
+gcloud container clusters create example-gke-cluster --cluster-version=1.15.9-gke.24 --no-enable-autorepair --disk-size=100 --num-nodes=2 --machine-type=n1-standard-4
 git clone https://github.com/galaxyproject/galaxykubeman-helm
 cd galaxykubeman-helm/galaxykubeman
 helm dependency update
