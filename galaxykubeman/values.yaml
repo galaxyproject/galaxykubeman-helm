@@ -29,3 +29,9 @@ galaxy:
       storageClass: "standard"
   influxdb:
     enabled: false
+  extraEnv: []
+  # - name: WORKSPACE_NAME
+  #   valueFrom:
+  #     configMapKeyRef:
+  #       name: "{{.Release.Name}}-[galaxykubeman|leo]-configs"
+  #       key: WORKSPACE_NAME
