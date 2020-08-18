@@ -13,6 +13,7 @@ helm install desired-release-name . --namespace mynamespace
 ```
 
 ## TL;DR on GKE with Helm2
+Helm 2 support for Galaxy Helm will be dropped in November 2020, around Galaxy 20.09 and Helm 3's anniversary.
 
 ```console
 gcloud container clusters create example-gke-cluster --cluster-version=1.15.9-gke.24 --no-enable-autorepair --disk-size=100 --num-nodes=2 --machine-type=n1-standard-4
