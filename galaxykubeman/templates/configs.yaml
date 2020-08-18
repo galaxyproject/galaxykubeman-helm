@@ -1,0 +1,20 @@
+{{- if .Values.configs }}
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-galaxykubeman-configs
+  labels:
+    app.kubernetes.io/name: {{ include "galaxykubeman.name" . }}
+    helm.sh/chart: {{ include "galaxykubeman.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+kind: ConfigMap
+data:
+  {{- range $key, $entry := .Values.configs -}}
+  {{- if $entry -}}
+  {{- $key | nindent 4 }}: |
+    {{- $entry | nindent 8 }}
+  {{- end -}}
+  {{- end }}
+---
+{{- end -}}
+
