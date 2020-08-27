@@ -7,7 +7,7 @@ configs: {}
 secrets: {}
   # db-password: changeme
 
-persistence: {}
+persistence:
   nfs:
     name: "nfs-disk"
     # size: 500Gi
