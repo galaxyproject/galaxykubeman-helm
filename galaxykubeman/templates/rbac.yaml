@@ -1,0 +1,30 @@
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: {{ .Release.Namespace }}-rbac
+  namespace: {{ .Release.Namespace }}
+rules:
+  - apiGroups: ["", "extensions", "apps"]
+    resources: ["*"]
+    verbs: ["*"]
+  - apiGroups: ["batch"]
+    resources:
+      - jobs
+      - cronjobs
+    verbs: ["*"]
+
+---
+
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: {{ .Release.Namespace }}-rbac-binding
+  namespace: {{ .Release.Namespace }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.rbac.ksa }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Release.Namespace }}-rbac
