@@ -2,7 +2,7 @@
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
-  name: {{ .Release.Namespace }}-rbac
+  name: {{ include "galaxykubeman.roleName" . }}
   namespace: {{ .Release.Namespace }}
 rules:
   - apiGroups: ["", "extensions", "apps"]
@@ -28,7 +28,7 @@ subjects:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: {{ .Release.Namespace }}-rbac
+  name: {{ include "galaxykubeman.roleName" . }}
 
 ---
 {{- end -}}
