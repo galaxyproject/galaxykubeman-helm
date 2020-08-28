@@ -55,4 +55,4 @@ galaxy:
   #       key: WORKSPACE_NAME
 
 rbac:
-  # ksa: leo-created-ksa
+  # serviceAccount: leo-created-ksa
