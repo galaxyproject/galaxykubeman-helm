@@ -55,4 +55,5 @@ galaxy:
   #       key: WORKSPACE_NAME
 
 rbac:
+  enabled: true
   # serviceAccount: leo-created-ksa
