@@ -53,3 +53,7 @@ galaxy:
   #     configMapKeyRef:
   #       name: "{{.Release.Name}}-[galaxykubeman|leo]-configs"
   #       key: WORKSPACE_NAME
+
+rbac:
+  enabled: true
+  # serviceAccount: leo-created-ksa
