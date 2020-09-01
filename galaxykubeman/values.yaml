@@ -27,6 +27,9 @@ cvmfs:
       enabled: false
 
 galaxy:
+  image:
+    repository: galaxy/galaxy-k8s
+    tag: anvil-aug26
   persistence:
     accessMode: "ReadWriteMany"
     storageClass: "nfs"
