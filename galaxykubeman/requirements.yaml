@@ -1,7 +1,7 @@
 dependencies:
   - name: nfs-server-provisioner
-    repository: https://kubernetes-charts.storage.googleapis.com/
-    version: 1.1.1
+    repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
+    version: 1.1.2
     alias: nfs
   - name: galaxy-cvmfs-csi
     repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/

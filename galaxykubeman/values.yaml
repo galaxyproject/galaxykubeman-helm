@@ -7,6 +7,28 @@ configs: {}
 secrets: {}
   # db-password: changeme
 
+persistence:
+  nfs:
+    name: "nfs-disk"
+    # size: 500Gi
+    storageClass: "manual"
+    accessMode: ReadWriteOnce
+    persistentVolume:
+      extraSpec:
+        gcePersistentDisk:
+          # pdName: leo-created-pd
+          fsType: ext4
+  postgres:
+    name: "postgres-disk"
+    # size: 500Gi
+    storageClass: "manual"
+    accessMode: ReadWriteOnce
+    persistentVolume:
+      extraSpec:
+        gcePersistentDisk:
+          # pdName: leo-created-pd
+          fsType: ext4
+
 nfs:
   persistence:
     enabled: true
