@@ -49,6 +49,9 @@ cvmfs:
       enabled: false
 
 galaxy:
+  image:
+    repository: galaxy/galaxy-k8s
+    tag: anvil-aug26
   persistence:
     accessMode: "ReadWriteMany"
     storageClass: "nfs"
@@ -75,3 +78,7 @@ galaxy:
   #     configMapKeyRef:
   #       name: "{{.Release.Name}}-[galaxykubeman|leo]-configs"
   #       key: WORKSPACE_NAME
+
+rbac:
+  enabled: true
+  # serviceAccount: leo-created-ksa

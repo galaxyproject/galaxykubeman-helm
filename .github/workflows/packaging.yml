@@ -23,7 +23,7 @@ jobs:
         shell: bash
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
-          GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_TOKEN: ${{ secrets.BOT_TOKEN }}
           GIT_BRANCH: ${{ github.event.pull_request.base.ref }}
           CHART_NAME: galaxykubeman
       - name: Package and push to helm-charts
@@ -31,6 +31,6 @@ jobs:
         shell: bash
         env:
           CHARTS_REPO: cloudve/helm-charts
-          GIT_TOKEN: ${{ secrets.CHARTS_TOKEN }}
+          GIT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHART_NAME: galaxykubeman
           CHARTS_BRANCH: anvil
