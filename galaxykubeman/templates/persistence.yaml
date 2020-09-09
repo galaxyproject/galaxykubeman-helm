@@ -1,5 +1,5 @@
 {{- range $key, $entry := .Values.persistence -}}
-
+{{- if $entry -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -75,5 +75,6 @@ spec:
 
 ---
 
+{{- end -}}
 {{- end -}}
 {{- end -}}
