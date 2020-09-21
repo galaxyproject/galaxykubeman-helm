@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-pre-delete-job"
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: "{{ .Release.Name }}-pre-delete-job"
+      labels:
+        app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+        app.kubernetes.io/instance: {{ .Release.Name | quote }}
+        helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    spec:
+      serviceAccountName: "{{ .Values.rbac.serviceAccount }}"
+      restartPolicy: Never
+      containers:
+      - name: pre-delete-kubectl
+        image: "cloudve/tini-kubectl:0.19.0-1.16.15"
+        args:
+          - "sh"
+          - "-c"
+          - "kubectl delete job -n {{.Release.Namespace}} {{.Release.Name}}-cvmfs-cache-preload-0 && kubectl delete deployment -n {{.Release.Namespace}} {{.Release.Name}}-job-0 {{.Release.Name}}-web {{.Release.Name}}-workflow && kubectl delete pvc -n {{.Release.Namespace}} {{.Release.Name}}-cvmfs-gxy-data-pvc {{.Release.Name}}-cvmfs-gxy-main-pvc && kubectl delete daemonset -n {{.Release.Namespace}} csi-cvmfsplugin && kubectl delete -n {{.Release.Namespace}} pvc {{.Release.Name}}-cvmfs-alien-cache-pvc {{.Release.Name}}-galaxy-pvc"
