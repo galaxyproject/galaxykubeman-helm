@@ -83,4 +83,4 @@ galaxy:
 
 rbac:
   enabled: true
-  # serviceAccount: leo-created-ksa
+  serviceAccount: default

@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-pre-delete-job"
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: "{{ .Release.Name }}-pre-delete-job"
+      labels:
+        app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+        app.kubernetes.io/instance: {{ .Release.Name | quote }}
+        helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    spec:
+      serviceAccountName: "{{ .Values.rbac.serviceAccount }}"
+      restartPolicy: Never
+      containers:
+      - name: pre-delete-kubectl
+        image: "cloudve/tini-kubectl:0.19.0-1.16.15"
+        args:
+          - "sh"
+          - "-c"
+          - 'kubectl get jobs -n {{ .Release.Namespace }} -o name | grep "cvmfs-cache-preload-0" | xargs kubectl delete -n {{ .Release.Namespace }} && kubectl get deployment -n {{ .Release.Namespace }} -o name | grep -E "(web|job-[0-9]+|workflow)$" | xargs kubectl delete -n {{ .Release.Namespace }} && kubectl get pvc -n {{ .Release.Namespace }} -o name | grep -E "(cvmfs-gxy-data-pvc|cvmfs-gxy-main-pvc)$" | xargs kubectl delete -n {{ .Release.Namespace }} && kubectl get daemonset -n {{ .Release.Namespace }} -o name | grep "csi-cvmfsplugin" | xargs kubectl delete -n {{ .Release.Namespace }} && kubectl get pvc -n {{ .Release.Namespace }} -o name | grep -E "(cvmfs-alien-cache-pvc|galaxy-pvc)$" | xargs kubectl delete -n {{ .Release.Namespace }}'
