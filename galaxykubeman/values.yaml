@@ -39,7 +39,9 @@ nfs:
     defaultClass: true
     allowVolumeExpansion: true
     reclaimPolicy: "Delete"
-
+    mountOptions:
+      - vers=4.2
+      - noatime
 cvmfs:
   cache:
     alienCache:
