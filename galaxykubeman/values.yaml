@@ -1,7 +1,23 @@
 nameOverride: ""
 fullnameOverride: ""
 
-configs: {}
+configs:
+  anvil.py: |
+    try:
+        from anvilfs.anvilfs import AnVILFS
+    except ImportError as e:
+        print("{}: :{}".format(e.__class__.__name__, e.message))
+        AnVILFS = None
+    from ._pyfilesystem2 import PyFilesystem2FilesSource
+    class AnVILFilesSource(PyFilesystem2FilesSource):
+        plugin_type = 'anvil'
+        required_module = AnVILFS
+        required_package = "fs.anvilfs"
+        def _open_fs(self, user_context):
+            props = self._serialization_props(user_context)
+            handle = AnVILFS(**props)
+            return handle
+    __all__ = ('AnVILFilesSource',)
   # env-key: env-value
 
 secrets: {}
@@ -53,7 +69,65 @@ cvmfs:
 galaxy:
   image:
     repository: galaxy/galaxy-anvil
-    tag: 20.09.2
+    tag: 20.09.3
+  configs:
+    file_sources_conf.yml:
+        - type: anvil
+          id: "Pre-ASHG-Demo"
+          doc: "Pre-ASHG Demo"
+          workspace: "Pre-ASHG Demo"
+          namespace: galaxy-anvil-dev
+    job_conf.xml: |
+      <job_conf>
+          <plugins>
+              <plugin id="local" type="runner" load="galaxy.jobs.runners.local:LocalJobRunner" workers="4" />
+              <plugin id="k8s" type="runner" load="galaxy.jobs.runners.kubernetes:KubernetesJobRunner">
+                <param id="k8s_use_service_account">true</param>
+                <param id="k8s_persistent_volume_claims">galaxy-galaxy-pvc:/galaxy/server/database,galaxy-cvmfs-gxy-data-pvc:/cvmfs/data.galaxyproject.org,galaxy-cvmfs-gxy-main-pvc:/cvmfs/main.galaxyproject.org</param>
+                <param id="k8s_namespace">ron-ns</param>
+                <!-- Must be DNS friendly and less than 20 characters -->
+                <param id="k8s_galaxy_instance_id">galaxy</param>
+                <param id="k8s_run_as_user_id">101</param>
+                <param id="k8s_run_as_group_id">101</param>
+                <param id="k8s_fs_group_id">101</param>
+                <param id="k8s_supplemental_group_id">101</param>
+                <param id="k8s_pull_policy">IfNotPresent</param>
+                <param id="k8s_cleanup_job">onsuccess</param>
+                <param id="k8s_pod_priority_class">galaxy-job-priority</param>
+              </plugin>
+          </plugins>
+          <handlers assign_with="db-skip-locked" />
+          <destinations default="dynamic-k8s-dispatcher">
+              <destination id="local" runner="local"/>
+              <destination id="dynamic-k8s-dispatcher" runner="dynamic">
+                <param id="type">python</param>
+                <param id="function">k8s_container_mapper</param>
+                <param id="docker_default_container_id">galaxy/galaxy-k8s:anvil-aug25</param>
+                <param id="docker_enabled">true</param>
+              </destination>
+          </destinations>
+          <limits>
+              <limit type="registered_user_concurrent_jobs">5</limit>
+              <limit type="anonymous_user_concurrent_jobs">2</limit>
+          </limits>
+          <tools>
+            <tool id="upload1" destination="local" />
+          </tools>
+      </job_conf>
+  extraVolumes:
+    - name: anvil-conf
+      configMap:
+        name: galaxy-galaxykubeman-configs
+        items:
+          - key: "anvil.py"
+            path: "anvil.py"
+
+  extraVolumeMounts:
+    - name: anvil-conf
+      mountPath: /galaxy/server/lib/galaxy/files/sources/anvil.py
+      subPath: anvil.py
+
+  extraInitCommands: "mkdir -p /tmp/anvil && cd /tmp/anvil && curl -OL https://github.com/luke-c-sargent/fs.anvilfs/archive/v0.AnVIL.tar.gz && tar -xvf v0.AnVIL.tar.gz && . /galaxy/server/.venv/bin/activate && yes | pip install --upgrade google-auth>=1.19.1 && yes | pip install -I fs.anvilfs-0.AnVIL/ && cd /galaxy/server"
   persistence:
     accessMode: "ReadWriteMany"
     storageClass: "nfs"
@@ -74,13 +148,43 @@ galaxy:
       storageClass: "standard"
   influxdb:
     enabled: false
+  rbac:
+    enabled: false
   extraEnv: []
   # - name: WORKSPACE_NAME
   #   valueFrom:
   #     configMapKeyRef:
   #       name: "{{.Release.Name}}-[galaxykubeman|leo]-configs"
   #       key: WORKSPACE_NAME
-
+  extraFileMappings:
+    /galaxy/server/static/welcome.html:
+      useSecret: false
+      applyToJob: false
+      applyToWeb: true
+      content: |
+        <!DOCTYPE html>
+        <html lang="en"><head>
+                <meta charset="utf-8">
+                <link rel="stylesheet" href="style/base.css" type="text/css">
+            </head>
+            <body class="m-0">
+                <div class="py-4">
+                    <div class="container">
+                        <h2>Welcome to <strong>Galaxy v20.09-dev on AnVIL</strong></h2>
+                        <br>
+                        <a target="_blank" href="https://docs.galaxyproject.org/en/master/" class="btn btn-primary">Galaxy Documentation »</a>
+                        <a target="_blank" href="https://galaxyproject.org" class="btn btn-primary">Galaxy Community Hub »</a>
+                        <a target="_blank" href="https://bvdp-saturn-dev.appspot.com/#workspaces/galaxy-anvil-dev/Pre-ASHG%20Demo/data" class="btn btn-primary">Back to AnVIL Workspace »</a>
+                    </div>
+                    <br>
+                </div>
+                <div class="container">
+                    <footer class="text-center">
+                        <p>Galaxy v20.09-dev, Helm Chart v3.5.0</p>
+                    </footer>
+                </div>
+            </body>
+        </html>
 rbac:
   enabled: true
   serviceAccount: default
