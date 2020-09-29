@@ -67,17 +67,40 @@ galaxy:
               <plugin id="local" type="runner" load="galaxy.jobs.runners.local:LocalJobRunner" workers="4" />
               <plugin id="k8s" type="runner" load="galaxy.jobs.runners.kubernetes:KubernetesJobRunner">
                 <param id="k8s_use_service_account">true</param>
-                <param id="k8s_persistent_volume_claims">galaxy-galaxy-pvc:/galaxy/server/database,galaxy-cvmfs-gxy-data-pvc:/cvmfs/data.galaxyproject.org,galaxy-cvmfs-gxy-main-pvc:/cvmfs/main.galaxyproject.org</param>
-                <param id="k8s_namespace">ron-ns</param>
+                <param id="k8s_persistent_volume_claims">
+                {{- template "galaxy.pvcname" . -}}:{{.Values.persistence.mountPath}},
+                {{- template "galaxy.fullname" . }}-cvmfs-gxy-data-pvc:{{ .Values.cvmfs.data.mountPath }},
+                {{- template "galaxy.fullname" . }}-cvmfs-gxy-main-pvc:{{ .Values.cvmfs.main.mountPath -}}
+                {{- if .Values.extraVolumes }}
+                  {{- range $num, $entry := .Values.extraVolumes }}
+                    {{- if $entry.name }}
+                      {{- if $entry.persistentVolumeClaim}}
+                        {{- if $entry.persistentVolumeClaim.claimName }}
+                          {{- range $num, $mount := $.Values.extraVolumeMounts }}
+                            {{- if $mount.name }}
+                              {{- if (eq $entry.name $mount.name) }}
+                                {{- if $mount.mountPath -}}
+                                  ,{{- $entry.persistentVolumeClaim.claimName -}}:{{- $mount.mountPath -}}
+                                {{- end }}
+                              {{- end }}
+                            {{- end }}
+                          {{- end }}
+                        {{- end }}
+                      {{- end }}
+                    {{- end }}
+                  {{- end }}
+                {{- end -}}
+                </param>
+                <param id="k8s_namespace">{{ .Release.Namespace }}</param>
                 <!-- Must be DNS friendly and less than 20 characters -->
-                <param id="k8s_galaxy_instance_id">galaxy</param>
+                <param id="k8s_galaxy_instance_id">{{ .Release.Name }}</param>
                 <param id="k8s_run_as_user_id">101</param>
                 <param id="k8s_run_as_group_id">101</param>
                 <param id="k8s_fs_group_id">101</param>
                 <param id="k8s_supplemental_group_id">101</param>
                 <param id="k8s_pull_policy">IfNotPresent</param>
                 <param id="k8s_cleanup_job">onsuccess</param>
-                <param id="k8s_pod_priority_class">galaxy-job-priority</param>
+                <param id="k8s_pod_priority_class">{{ include "galaxy.fullname" . }}-job-priority</param>
               </plugin>
           </plugins>
           <handlers assign_with="db-skip-locked" />
@@ -86,7 +109,7 @@ galaxy:
               <destination id="dynamic-k8s-dispatcher" runner="dynamic">
                 <param id="type">python</param>
                 <param id="function">k8s_container_mapper</param>
-                <param id="docker_default_container_id">galaxy/galaxy-k8s:anvil-aug25</param>
+                <param id="docker_default_container_id">{{ .Values.image.repository }}:{{ .Values.image.tag }}</param>
                 <param id="docker_enabled">true</param>
               </destination>
           </destinations>
