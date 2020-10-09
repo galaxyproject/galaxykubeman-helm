@@ -53,7 +53,7 @@ cvmfs:
 galaxy:
   image:
     repository: galaxy/galaxy-anvil
-    tag: 20.09.2
+    tag: 20.09.5
   persistence:
     accessMode: "ReadWriteMany"
     storageClass: "nfs"
@@ -80,6 +80,30 @@ galaxy:
   #     configMapKeyRef:
   #       name: "{{.Release.Name}}-[galaxykubeman|leo]-configs"
   #       key: WORKSPACE_NAME
+
+  # terra:
+  #   launch:
+  #     workspace: launchWorkspace
+  #     namespace: launchProject
+  configs:
+    file_sources_conf.yml:
+      - doc: "{{ .Values.terra.launch.workspace }}"
+        id: "{{ .Values.terra.launch.workspace }}"
+        workspace: "{{ .Values.terra.launch.workspace }}"
+        namespace: "{{ .Values.terra.launch.namespace }}"
+        type: anvil
+        on_anvil: True
+        # api_url: https://firecloud-orchestration.dsde-dev.broadinstitute.org/api/
+        # drs_url: https://us-central1-broad-dsde-dev.cloudfunctions.net/martha_v3
+  resources:
+    requests:
+      cpu: 1
+      memory: 6G
+      ephemeral-storage: 5Gi
+    limits:
+      cpu: 4
+      memory: 20G
+      ephemeral-storage: 20Gi
 
 rbac:
   enabled: true
