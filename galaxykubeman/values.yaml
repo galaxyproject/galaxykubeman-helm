@@ -87,10 +87,10 @@ galaxy:
   #     namespace: launchProject
   configs:
     file_sources_conf.yml:
-      - doc: {{ .Values.terra.launch.workspace }}
-        id: {{ .Values.terra.launch.workspace }}
-        workspace: {{ .Values.terra.launch.workspace }}
-        namespace: {{ .Values.terra.launch.namespace }}
+      - doc: "{{ .Values.terra.launch.workspace }}"
+        id: "{{ .Values.terra.launch.workspace }}"
+        workspace: "{{ .Values.terra.launch.workspace }}"
+        namespace: "{{ .Values.terra.launch.namespace }}"
         type: anvil
         on_anvil: True
         # api_url: https://firecloud-orchestration.dsde-dev.broadinstitute.org/api/
