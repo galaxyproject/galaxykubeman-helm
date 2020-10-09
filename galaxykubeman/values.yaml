@@ -95,6 +95,15 @@ galaxy:
         on_anvil: True
         # api_url: https://firecloud-orchestration.dsde-dev.broadinstitute.org/api/
         # drs_url: https://us-central1-broad-dsde-dev.cloudfunctions.net/martha_v3
+  resources:
+    requests:
+      cpu: 1
+      memory: 6G
+      ephemeral-storage: 5Gi
+    limits:
+      cpu: 4
+      memory: 20G
+      ephemeral-storage: 20Gi
 
 rbac:
   enabled: true
