@@ -49,6 +49,8 @@ cvmfs:
       storageClass: "nfs"
     localCache:
       enabled: false
+    preload:
+      enabled: false
 
 galaxy:
   image:
@@ -86,6 +88,75 @@ galaxy:
   #     workspace: launchWorkspace
   #     namespace: launchProject
   configs:
+    galaxy.yml:
+      job_config_file: "/galaxy/server/config/job_conf.yml"
+    job_conf.yml:
+      runners:
+        local:
+          load: galaxy.jobs.runners.local:LocalJobRunner
+          workers: 4
+        k8s:
+          load: galaxy.jobs.runners.kubernetes:KubernetesJobRunner
+          k8s_use_service_account: true
+          k8s_job_api_version: batch/v1
+          k8s_persistent_volume_claims: |-
+            {{ template "galaxy.pvcname" . -}}:{{.Values.persistence.mountPath}},
+            {{- template "galaxy.fullname" . }}-cvmfs-gxy-data-pvc:{{ .Values.cvmfs.data.mountPath }},
+            {{- template "galaxy.fullname" . }}-cvmfs-gxy-main-pvc:{{ .Values.cvmfs.main.mountPath -}}
+            {{- if .Values.extraVolumes }}
+              {{- range $num, $entry := .Values.extraVolumes }}
+                {{- if $entry.name }}
+                  {{- if $entry.persistentVolumeClaim}}
+                    {{- if $entry.persistentVolumeClaim.claimName }}
+                      {{- range $num, $mount := $.Values.extraVolumeMounts }}
+                        {{- if $mount.name }}
+                          {{- if (eq $entry.name $mount.name) }}
+                            {{- if $mount.mountPath -}}
+                              ,{{- $entry.persistentVolumeClaim.claimName -}}:{{- $mount.mountPath -}}
+                            {{- end }}
+                          {{- end }}
+                        {{- end }}
+                      {{- end }}
+                    {{- end }}
+                  {{- end }}
+                {{- end }}
+              {{- end }}
+            {{- end }}
+          k8s_namespace: "{{ .Release.Namespace }}"
+          k8s_pod_retries: "4"
+          k8s_walltime_limit: "604800"
+          k8s_galaxy_instance_id: "{{ .Release.Name }}"
+          #k8s_timeout_seconds_job_deletion: 30
+          k8s_run_as_user_id: "101"
+          k8s_run_as_group_id: "101"
+          k8s_supplemental_group_id: "101"
+          k8s_fs_group_id: "101"
+          k8s_pull_policy: IfNotPresent
+          k8s_cleanup_job: onsuccess
+          k8s_pod_priority_class: '{{ include "galaxy.fullname" . }}-job-priority'
+          # Requires an image with https://github.com/galaxyproject/galaxy/pull/10380
+          # k8s_node_selector: |-
+            # cloud.google.com/gke-nodepool: good-pool
+      handling:
+        assign:
+          - "db-skip-locked"
+      execution:
+        default: dynamic_k8s_dispatcher
+        environments:
+          local:
+            runner: local
+          dynamic_k8s_dispatcher:
+            runner: dynamic
+            docker_enabled: true
+            type: python
+            function: k8s_container_mapper
+            docker_default_container_id: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+            #max_pod_retries: 3
+      limits:
+        - type: registered_user_concurrent_jobs
+          value: 10
+        - type: anonymous_user_concurrent_jobs
+          value: 1
     file_sources_conf.yml:
       - doc: "{{ .Values.terra.launch.workspace }}"
         id: "{{ .Values.terra.launch.workspace }}"
@@ -97,12 +168,12 @@ galaxy:
         # drs_url: https://us-central1-broad-dsde-dev.cloudfunctions.net/martha_v3
   resources:
     requests:
-      cpu: 1
-      memory: 6G
+      cpu: 0.5
+      memory: 2G
       ephemeral-storage: 5Gi
     limits:
-      cpu: 4
-      memory: 20G
+      cpu: 2
+      memory: 8G
       ephemeral-storage: 20Gi
 
 rbac:
