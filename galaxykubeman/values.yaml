@@ -55,7 +55,7 @@ cvmfs:
 galaxy:
   image:
     repository: galaxy/galaxy-anvil
-    tag: 20.09.5
+    tag: 20.09
   persistence:
     accessMode: "ReadWriteMany"
     storageClass: "nfs"
