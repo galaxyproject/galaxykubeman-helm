@@ -89,7 +89,8 @@ galaxy:
   #     namespace: launchProject
   configs:
     galaxy.yml:
-      job_config_file: "/galaxy/server/config/job_conf.yml"
+      galaxy:
+        job_config_file: "/galaxy/server/config/job_conf.yml"
     job_conf.yml:
       runners:
         local:
