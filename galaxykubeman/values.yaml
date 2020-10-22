@@ -252,31 +252,31 @@ galaxy:
             small:
               requests:
                 cpu: 1
-                memory: 2G
+                memory: 2Gi
               limits:
                 cpu: 2
-                memory: 5G
+                memory: 5Gi
             medium:
               requests:
                 cpu: 2
-                memory: 4G
+                memory: 4Gi
               limits:
                 cpu: 4
-                memory: 10G
+                memory: 10Gi
             large:
               requests:
                 cpu: 4
-                memory: 8G
+                memory: 8Gi
               limits:
                 cpu: 8
-                memory: 16G
+                memory: 16Gi
             mlarge:
               requests:
                 cpu: 2
-                memory: 16G
+                memory: 16Gi
               limits:
                 cpu: 4
-                memory: 20G
+                memory: 20Gi
           default_resource_set: small
   extraFileMappings:
     /galaxy/server/static/welcome.html:
