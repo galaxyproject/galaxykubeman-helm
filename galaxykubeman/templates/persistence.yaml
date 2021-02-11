@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ tpl $entry.name $ }}-pvc
+  name: "{{ tpl $entry.name $ }}-pvc"
   labels:
     app.kubernetes.io/name: {{ include "galaxykubeman.name" $ }}
     helm.sh/chart: {{ include "galaxykubeman.chart" $ }}
@@ -49,19 +49,17 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-{{ if $entry.persistentVolume.name -}}
+{{- if $entry.persistentVolume.name }}
   name: {{ tpl $entry.persistentVolume.name $ }}
-{{ else -}}
+{{- else }}
   name: {{ tpl $entry.name $ }}-pv
-{{ end -}}
+{{- end }}
   labels:
     name: {{ tpl $entry.name $ }}-pv
     app.kubernetes.io/name: {{ include "galaxykubeman.name" $ }}
     helm.sh/chart: {{ include "galaxykubeman.chart" $ }}
     app.kubernetes.io/instance: {{ $.Release.Name }}
     app.kubernetes.io/managed-by: {{ $.Release.Service }}
-}
-}
 {{- if $entry.persistentVolume.annotations }}
   annotations:
 {{- $original := (toYaml $entry.persistentVolume.annotations) -}}
