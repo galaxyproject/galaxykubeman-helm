@@ -20,7 +20,7 @@ persistence:
           fsType: ext4
   postgres:
     name: "postgres-disk"
-    # size: 500Gi
+    # size: 10Gi
     storageClass: "manual"
     accessMode: ReadWriteOnce
     persistentVolume:
@@ -28,6 +28,68 @@ persistence:
         gcePersistentDisk:
           # pdName: leo-created-pd
           fsType: ext4
+  galaxyShared:
+    name: "{{ .Release.Name }}-galaxy"
+    size: "{{ .Values.galaxy.persistence.size }}"
+    storageClass: "{{ .Values.galaxy.persistence.storageClass }}"
+    accessMode: "{{ .Values.galaxy.persistence.accessMode }}"
+    extraMetadata:
+      finalizers:
+        - kubernetes.io/pvc-protection
+    extraSpec:
+      volumeName: "{{ tpl .Values.persistence.galaxyShared.name . }}-pv"
+    persistentVolume:
+      # name: pvc-uuid
+      extraMetadata:
+        finalizers:
+          - kubernetes.io/pv-protection
+      annotations:
+        EXPORT_block: "\nEXPORT\n{\n\tExport_Id = {{ .Values.persistence.galaxyShared.persistentVolume.annotations.Export_Id }};\n\tPath = /export/{{ tpl .Values.persistence.galaxyShared.name . }}-pv;\n\tPseudo
+          = /export/{{ tpl .Values.persistence.galaxyShared.name . }}-pv;\n\tAccess_Type = RW;\n\tSquash
+          = no_root_squash;\n\tSecType = sys;\n\tFilesystem_id = {{ .Values.persistence.galaxyShared.persistentVolume.annotations.Export_Id }}.{{ .Values.persistence.galaxyShared.persistentVolume.annotations.Export_Id }};\n\tFSAL {\n\t\tName
+          = VFS;\n\t}\n}\n"
+        Export_Id: "2"
+        Project_Id: "0"
+        Project_block: ""
+      extraSpec:
+        mountOptions:
+          - vers=4.2
+          - noatime
+        nfs:
+          path: "/export/{{ tpl .Values.persistence.galaxyShared.name . }}-pv"
+          server: "{{ .Release.Name }}-nfs.{{ .Release.Namespace }}.svc.cluster.local"
+        persistentVolumeReclaimPolicy: Retain
+  cvmfsCacheShared:
+    name: "{{ .Release.Name }}-cvmfs-alien-cache"
+    size: "{{ .Values.cvmfs.cache.alienCache.size }}Mi"
+    storageClass: "{{ .Values.cvmfs.cache.alienCache.storageClass }}"
+    accessMode: "ReadWriteMany"
+    extraMetadata:
+      finalizers:
+        - kubernetes.io/pvc-protection
+    extraSpec:
+      volumeName: "{{ tpl .Values.persistence.cvmfsCacheShared.name . }}-pv"
+    persistentVolume:
+      # name: pvc-uuid2
+      extraMetadata:
+        finalizers:
+          - kubernetes.io/pv-protection
+      annotations:
+        EXPORT_block: "\nEXPORT\n{\n\tExport_Id = {{ .Values.persistence.cvmfsCacheShared.persistentVolume.annotations.Export_Id }};\n\tPath = /export/{{ tpl .Values.persistence.cvmfsCacheShared.name . }}-pv;\n\tPseudo
+          = /export/{{ tpl .Values.persistence.cvmfsCacheShared.name . }}-pv;\n\tAccess_Type = RW;\n\tSquash
+          = no_root_squash;\n\tSecType = sys;\n\tFilesystem_id = {{ .Values.persistence.cvmfsCacheShared.persistentVolume.annotations.Export_Id }}.{{ .Values.persistence.cvmfsCacheShared.persistentVolume.annotations.Export_Id }};\n\tFSAL {\n\t\tName
+          = VFS;\n\t}\n}\n"
+        Export_Id: "1"
+        Project_Id: "0"
+        Project_block: ""
+      extraSpec:
+        mountOptions:
+          - vers=4.2
+          - noatime
+        nfs:
+          path: "/export/{{ tpl .Values.persistence.cvmfsCacheShared.name . }}-pv"
+          server: "{{ .Release.Name }}-nfs.{{ .Release.Namespace }}.svc.cluster.local"
+        persistentVolumeReclaimPolicy: Retain
 
 nfs:
   persistence:
@@ -38,7 +100,7 @@ nfs:
     create: true
     defaultClass: true
     allowVolumeExpansion: true
-    reclaimPolicy: "Delete"
+    reclaimPolicy: "Retain"
     mountOptions:
       - vers=4.2
       - noatime
@@ -46,7 +108,9 @@ cvmfs:
   cache:
     alienCache:
       enabled: true
+      size: 10000
       storageClass: "nfs"
+      existingClaim: "{{ .Release.Name }}-cvmfs-alien-cache-pvc"
     localCache:
       enabled: false
     preload:
@@ -60,6 +124,7 @@ galaxy:
     accessMode: "ReadWriteMany"
     storageClass: "nfs"
     size: "300Gi"
+    existingClaim: "{{ .Release.Name }}-galaxy-pvc"
   ingress:
     enabled: true
     annotations:
