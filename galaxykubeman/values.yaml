@@ -10,9 +10,12 @@ secrets: {}
 restore:
   persistence:
     nfs:
-      galaxy: {}
+      galaxy:
+        deployVolume: true
         # pvcID: pvc-uuid
-      cvmfsCache: {}
+        
+      cvmfsCache:
+        deployVolume: true
         # pvcID: pvc-uuid
 
 persistence:
