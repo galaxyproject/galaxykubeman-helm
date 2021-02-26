@@ -20,6 +20,7 @@ spec:
   volumeMode: Filesystem
   volumeName: "pvc-{{.Values.restore.persistence.nfs.galaxy.pvcID}}"
 ---
+{{ if .Values.restore.persistence.nfs.galaxy.deployVolume -}}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -59,6 +60,7 @@ spec:
     name: {{ .Release.Name }}-galaxy-pvc
 ---
 {{ end -}}
+{{ end -}}
 {{ if .Values.restore.persistence.nfs.cvmfsCache.pvcID -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -81,7 +83,7 @@ spec:
   volumeMode: Filesystem
   volumeName: "pvc-{{.Values.restore.persistence.nfs.cvmfsCache.pvcID}}"
 ---
-
+{{ if .Values.restore.persistence.nfs.cvmfsCache.deployVolume -}}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -120,4 +122,5 @@ spec:
     namespace: "{{ .Release.Namespace }}"
     name: "{{ .Release.Name }}-cvmfs-alien-cache-pvc"
 ---
+{{ end -}}
 {{ end -}}
