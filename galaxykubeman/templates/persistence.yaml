@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ $entry.name }}-pvc
+  name: "{{ tpl $entry.name $ }}-pvc"
   labels:
     app.kubernetes.io/name: {{ include "galaxykubeman.name" $ }}
     helm.sh/chart: {{ include "galaxykubeman.chart" $ }}
@@ -11,21 +11,30 @@ metadata:
     app.kubernetes.io/managed-by: {{ $.Release.Service }}
 {{- if $entry.annotations }}
   annotations:
-{{ toYaml $entry.annotations | indent 4 }}
+{{- $original := (toYaml $entry.annotations) -}}
+{{- $nomultiline := (regexReplaceAll "^^\\s*\\|\\n*" $original "") -}}
+{{- $nowhitespace := (regexReplaceAll "{{\\s*([^}\\s]+)\\s*}}" $nomultiline "{{$1}}") -}}
+{{- tpl $nowhitespace $ | trim | nindent 4 -}}
+{{- end }}
+{{- if $entry.extraMetadata -}}
+{{- $original := (toYaml $entry.extraMetadata) -}}
+{{- $nomultiline := (regexReplaceAll "^^\\s*\\|\\n*" $original "") -}}
+{{- $nowhitespace := (regexReplaceAll "{{\\s*([^}\\s]+)\\s*}}" $nomultiline "{{$1}}") -}}
+{{- tpl $nowhitespace $ | trim | nindent 2 -}}
 {{- end }}
 spec:
   {{- if $entry.storageClass }}
   {{- if (eq "-" $entry.storageClass) }}
   storageClassName: ""
   {{- else }}
-  storageClassName: "{{ $entry.storageClass }}"
+  storageClassName: "{{ tpl $entry.storageClass $ }}"
   {{- end }}
   {{- end }}
   accessModes:
-    - {{ $entry.accessMode | quote }}
+    - {{ tpl $entry.accessMode $ | quote }}
   resources:
     requests:
-      storage: {{ $entry.size | quote }}
+      storage: {{ tpl $entry.size $ | quote }}
   {{- if $entry.extraSpec -}}
   {{- $original := (toYaml $entry.extraSpec) -}}
   {{- $nomultiline := (regexReplaceAll "^^\\s*\\|\\n*" $original "") -}}
@@ -40,32 +49,45 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: {{ $entry.name }}-pv
+{{- if $entry.persistentVolume.name }}
+  name: {{ tpl $entry.persistentVolume.name $ }}
+{{- else }}
+  name: {{ tpl $entry.name $ }}-pv
+{{- end }}
   labels:
-    name: {{ $entry.name }}-pv
+    name: {{ tpl $entry.name $ }}-pv
     app.kubernetes.io/name: {{ include "galaxykubeman.name" $ }}
     helm.sh/chart: {{ include "galaxykubeman.chart" $ }}
     app.kubernetes.io/instance: {{ $.Release.Name }}
     app.kubernetes.io/managed-by: {{ $.Release.Service }}
 {{- if $entry.persistentVolume.annotations }}
   annotations:
-{{ toYaml $entry.persistentVolume.annotations | indent 4 }}
+{{- $original := (toYaml $entry.persistentVolume.annotations) -}}
+{{- $nomultiline := (regexReplaceAll "^^\\s*\\|\\n*" $original "") -}}
+{{- $nowhitespace := (regexReplaceAll "{{\\s*([^}\\s]+)\\s*}}" $nomultiline "{{$1}}") -}}
+{{- tpl $nowhitespace $ | trim | nindent 4 -}}
+{{- end }}
+{{- if $entry.persistentVolume.extraMetadata -}}
+{{- $original := (toYaml $entry.persistentVolume.extraMetadata) -}}
+{{- $nomultiline := (regexReplaceAll "^^\\s*\\|\\n*" $original "") -}}
+{{- $nowhitespace := (regexReplaceAll "{{\\s*([^}\\s]+)\\s*}}" $nomultiline "{{$1}}") -}}
+{{- tpl $nowhitespace $ | trim | nindent 2 -}}
 {{- end }}
 spec:
   {{- if $entry.storageClass }}
   {{- if (eq "-" $entry.storageClass) }}
   storageClassName: ""
   {{- else }}
-  storageClassName: "{{ $entry.storageClass }}"
+  storageClassName: "{{ tpl $entry.storageClass $ }}"
   {{- end }}
   {{- end }}
   accessModes:
-    - {{ $entry.accessMode | quote }}
+    - {{ tpl $entry.accessMode $ | quote }}
   capacity:
-    storage: {{ $entry.size | quote }}
+    storage: {{ tpl $entry.size $ | quote }}
   claimRef:
     namespace: {{ $.Release.Namespace }}
-    name: {{ $entry.name }}-pvc
+    name: {{ tpl $entry.name $ }}-pvc
   {{- if $entry.persistentVolume.extraSpec -}}
   {{- $original := (toYaml $entry.persistentVolume.extraSpec) -}}
   {{- $nomultiline := (regexReplaceAll "^^\\s*\\|\\n*" $original "") -}}

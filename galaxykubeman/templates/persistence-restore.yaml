@@ -1,0 +1,126 @@
+{{ if .Values.restore.persistence.nfs.galaxy.pvcID -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "{{ .Release.Name }}-galaxy-pvc"
+  labels:
+    app.kubernetes.io/name: {{ include "galaxykubeman.name" . }}
+    helm.sh/chart: {{ include "galaxykubeman.chart" . }}
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/managed-by: "{{ .Release.Service }}"
+  finalizers:
+    - kubernetes.io/pvc-protection
+spec:
+  storageClassName: "{{ .Values.galaxy.persistence.storageClass }}"
+  accessModes:
+    - '{{ .Values.galaxy.persistence.accessMode }}'
+  resources:
+    requests:
+      storage: {{ .Values.galaxy.persistence.size | quote }}
+  volumeMode: Filesystem
+  volumeName: "pvc-{{.Values.restore.persistence.nfs.galaxy.pvcID}}"
+---
+{{ if .Values.restore.persistence.nfs.galaxy.deployVolume -}}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: "pvc-{{.Values.restore.persistence.nfs.galaxy.pvcID}}"
+  labels:
+    name: "pvc-{{.Values.restore.persistence.nfs.galaxy.pvcID}}"
+    app.kubernetes.io/name: {{ include "galaxykubeman.name" . }}
+    helm.sh/chart: {{ include "galaxykubeman.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  finalizers:
+    - kubernetes.io/pv-protection
+  annotations:
+    EXPORT_block: |
+      \nEXPORT\n{\n\tExport_Id = 2;\n\tPath = /export/pvc-{{.Values.restore.persistence.nfs.galaxy.pvcID}};\n\tPseudo
+      = /export/pvc-{{.Values.restore.persistence.nfs.galaxy.pvcID}};\n\tAccess_Type = RW;\n\tSquash
+      = no_root_squash;\n\tSecType = sys;\n\tFilesystem_id = 2.2;\n\tFSAL {\n\t\tName
+      = VFS;\n\t}\n}\n
+    Export_Id: "2"
+    Project_Id: "0"
+    Project_block: ""
+spec:
+  mountOptions:
+    - vers=4.2
+    - noatime
+  nfs:
+    path: "/export/pvc-{{.Values.restore.persistence.nfs.galaxy.pvcID}}"
+    server: "{{ .Release.Name }}-nfs.{{ .Release.Namespace }}.svc.cluster.local"
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: "{{ .Values.galaxy.persistence.storageClass }}"
+  accessModes:
+    - {{ .Values.galaxy.persistence.accessMode }}
+  capacity:
+    storage: '{{ .Values.galaxy.persistence.size }}'
+  claimRef:
+    namespace: {{ .Release.Namespace }}
+    name: {{ .Release.Name }}-galaxy-pvc
+---
+{{ end -}}
+{{ end -}}
+{{ if .Values.restore.persistence.nfs.cvmfsCache.pvcID -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "{{ .Release.Name }}-cvmfs-alien-cache-pvc"
+  labels:
+    app.kubernetes.io/name: {{ include "galaxykubeman.name" . }}
+    helm.sh/chart: {{ include "galaxykubeman.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  finalizers:
+    - kubernetes.io/pvc-protection
+spec:
+  storageClassName: "{{ .Values.cvmfs.cache.alienCache.storageClass }}"
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: '{{ .Values.cvmfs.cache.alienCache.size }}Mi'
+  volumeMode: Filesystem
+  volumeName: "pvc-{{.Values.restore.persistence.nfs.cvmfsCache.pvcID}}"
+---
+{{ if .Values.restore.persistence.nfs.cvmfsCache.deployVolume -}}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: "pvc-{{ .Values.restore.persistence.nfs.cvmfsCache.pvcID }}"
+  labels:
+    name: "pvc-{{ .Values.restore.persistence.nfs.cvmfsCache.pvcID }}"
+    app.kubernetes.io/name: {{ include "galaxykubeman.name" . }}
+    helm.sh/chart: {{ include "galaxykubeman.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  finalizers:
+    - kubernetes.io/pv-protection
+  annotations:
+    EXPORT_block: |
+      \nEXPORT\n{\n\tExport_Id = 1;\n\tPath = /export/pvc-{{ .Values.restore.persistence.nfs.cvmfsCache.pvcID }};\n\tPseudo
+      = /export/pvc-{{ .Values.restore.persistence.nfs.cvmfsCache.pvcID }};\n\tAccess_Type = RW;\n\tSquash
+      = no_root_squash;\n\tSecType = sys;\n\tFilesystem_id = 1.1;\n\tFSAL {\n\t\tName
+      = VFS;\n\t}\n}\n
+    Export_Id: "1"
+    Project_Id: "0"
+    Project_block: ""
+spec:
+  mountOptions:
+    - vers=4.2
+    - noatime
+  nfs:
+    path: "/export/pvc-{{ .Values.restore.persistence.nfs.cvmfsCache.pvcID }}"
+    server: "{{ .Release.Name }}-nfs.{{ .Release.Namespace }}.svc.cluster.local"
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: "{{ .Values.cvmfs.cache.alienCache.storageClass }}"
+  accessModes:
+    - ReadWriteMany
+  capacity:
+    storage: '{{ .Values.cvmfs.cache.alienCache.size }}Mi'
+  claimRef:
+    namespace: "{{ .Release.Namespace }}"
+    name: "{{ .Release.Name }}-cvmfs-alien-cache-pvc"
+---
+{{ end -}}
+{{ end -}}

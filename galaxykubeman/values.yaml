@@ -7,6 +7,17 @@ configs: {}
 secrets: {}
   # db-password: changeme
 
+restore:
+  persistence:
+    nfs:
+      galaxy:
+        deployVolume: true
+        # pvcID: pvc-uuid
+        
+      cvmfsCache:
+        deployVolume: true
+        # pvcID: pvc-uuid
+
 persistence:
   nfs:
     name: "nfs-disk"
@@ -20,7 +31,7 @@ persistence:
           fsType: ext4
   postgres:
     name: "postgres-disk"
-    # size: 500Gi
+    # size: 10Gi
     storageClass: "manual"
     accessMode: ReadWriteOnce
     persistentVolume:
@@ -38,7 +49,7 @@ nfs:
     create: true
     defaultClass: true
     allowVolumeExpansion: true
-    reclaimPolicy: "Delete"
+    reclaimPolicy: "Retain"
     mountOptions:
       - vers=4.2
       - noatime
@@ -46,7 +57,9 @@ cvmfs:
   cache:
     alienCache:
       enabled: true
+      size: 10000
       storageClass: "nfs"
+      # existingClaim: "{{ .Release.Name }}-cvmfs-alien-cache-pvc"
     localCache:
       enabled: false
     preload:
@@ -60,6 +73,7 @@ galaxy:
     accessMode: "ReadWriteMany"
     storageClass: "nfs"
     size: "300Gi"
+    # existingClaim: "{{ .Release.Name }}-galaxy-pvc"
   ingress:
     enabled: true
     annotations:
