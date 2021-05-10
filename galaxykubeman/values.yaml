@@ -120,29 +120,6 @@ galaxy:
           load: galaxy.jobs.runners.kubernetes:KubernetesJobRunner
           k8s_use_service_account: true
           k8s_job_api_version: batch/v1
-          k8s_persistent_volume_claims: |-
-            {{ template "galaxy.pvcname" . -}}:{{.Values.persistence.mountPath}},
-            {{- template "galaxy.fullname" . }}-cvmfs-gxy-data-pvc:{{ .Values.cvmfs.data.mountPath }},
-            {{- template "galaxy.fullname" . }}-cvmfs-gxy-cloud-pvc:{{ .Values.cvmfs.cloud.mountPath -}}
-            {{- if .Values.extraVolumes }}
-              {{- range $num, $entry := .Values.extraVolumes }}
-                {{- if $entry.name }}
-                  {{- if $entry.persistentVolumeClaim}}
-                    {{- if $entry.persistentVolumeClaim.claimName }}
-                      {{- range $num, $mount := $.Values.extraVolumeMounts }}
-                        {{- if $mount.name }}
-                          {{- if (eq $entry.name $mount.name) }}
-                            {{- if $mount.mountPath -}}
-                              ,{{- $entry.persistentVolumeClaim.claimName -}}:{{- $mount.mountPath -}}
-                            {{- end }}
-                          {{- end }}
-                        {{- end }}
-                      {{- end }}
-                    {{- end }}
-                  {{- end }}
-                {{- end }}
-              {{- end }}
-            {{- end }}
           k8s_namespace: "{{ .Release.Namespace }}"
           k8s_pod_retries: "4"
           k8s_walltime_limit: "604800"
