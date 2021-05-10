@@ -66,9 +66,15 @@ cvmfs:
       enabled: false
 
 galaxy:
+  postgresql:
+    deploy: true
+    # nodeSelector: "cloud.google.com/gke-nodepool: good-pool"
+  cvmfs:
+    enabled: true
+    deploy: false
   image:
     repository: galaxy/galaxy-anvil
-    tag: 20.09
+    tag: 21.01
   persistence:
     accessMode: "ReadWriteMany"
     storageClass: "nfs"
@@ -97,10 +103,10 @@ galaxy:
   #       name: "{{.Release.Name}}-[galaxykubeman|leo]-configs"
   #       key: WORKSPACE_NAME
 
-  # terra:
-  #   launch:
-  #     workspace: launchWorkspace
-  #     namespace: launchProject
+  terra:
+     launch:
+        workspace: launchWorkspace
+        namespace: launchProject
   configs:
     galaxy.yml:
       galaxy:
@@ -114,29 +120,6 @@ galaxy:
           load: galaxy.jobs.runners.kubernetes:KubernetesJobRunner
           k8s_use_service_account: true
           k8s_job_api_version: batch/v1
-          k8s_persistent_volume_claims: |-
-            {{ template "galaxy.pvcname" . -}}:{{.Values.persistence.mountPath}},
-            {{- template "galaxy.fullname" . }}-cvmfs-gxy-data-pvc:{{ .Values.cvmfs.data.mountPath }},
-            {{- template "galaxy.fullname" . }}-cvmfs-gxy-main-pvc:{{ .Values.cvmfs.main.mountPath -}}
-            {{- if .Values.extraVolumes }}
-              {{- range $num, $entry := .Values.extraVolumes }}
-                {{- if $entry.name }}
-                  {{- if $entry.persistentVolumeClaim}}
-                    {{- if $entry.persistentVolumeClaim.claimName }}
-                      {{- range $num, $mount := $.Values.extraVolumeMounts }}
-                        {{- if $mount.name }}
-                          {{- if (eq $entry.name $mount.name) }}
-                            {{- if $mount.mountPath -}}
-                              ,{{- $entry.persistentVolumeClaim.claimName -}}:{{- $mount.mountPath -}}
-                            {{- end }}
-                          {{- end }}
-                        {{- end }}
-                      {{- end }}
-                    {{- end }}
-                  {{- end }}
-                {{- end }}
-              {{- end }}
-            {{- end }}
           k8s_namespace: "{{ .Release.Namespace }}"
           k8s_pod_retries: "4"
           k8s_walltime_limit: "604800"
@@ -182,6 +165,7 @@ galaxy:
         namespace: "{{ .Values.terra.launch.namespace }}"
         type: anvil
         on_anvil: True
+        writable: True
         # api_url: https://firecloud-orchestration.dsde-dev.broadinstitute.org/api/
         # drs_url: https://us-central1-broad-dsde-dev.cloudfunctions.net/martha_v3
   resources:
@@ -193,105 +177,6 @@ galaxy:
       cpu: 2
       memory: 8G
       ephemeral-storage: 20Gi
-  jobs:
-    rules:
-      container_mapper_rules.yml: |
-        mappings:
-          - tool_ids:
-              - Summary_Statistics1
-            container:
-              docker_container_id_override: cloudve/gsummary:latest
-              resource_set: small
-          - tool_ids:
-              - toolshed.g2.bx.psu.edu/repos/devteam/data_manager_sam_fasta_index_builder/sam_fasta_index_builder/.*
-            container:
-              docker_container_id_override: cloudve/sam-fasta-dm:latest
-              resource_set: small
-          - tool_ids:
-              - toolshed.g2.bx.psu.edu/repos/devteam/data_manager_bwa_mem_index_builder/bwa_mem_index_builder_data_manager/.*
-            container:
-              docker_container_id_override: cloudve/bwa-dm:latest
-              resource_set: small
-          - tool_ids:
-              - toolshed.g2.bx.psu.edu/repos/crs4/prokka/prokka/1.14.5
-            container:
-              docker_container_id_override: cloudve/prokka:1.14.5
-          - tool_ids:
-              - toolshed.g2.bx.psu.edu/repos/iuc/jbrowse/jbrowse/1.16.5+galaxy6
-            container:
-              docker_container_id_override: cloudve/jbrowse:1.16.5
-          - tool_ids:
-              - sort1
-              - Grouping1
-            container:
-              docker_container_id_override: {{ .Values.image.repository }}:{{ .Values.image.tag }}
-              resource_set: small
-          - tool_ids:
-              - toolshed.g2.bx.psu.edu/repos/devteam/bowtie2/bowtie2/.*
-              - toolshed.g2.bx.psu.edu/repos/iuc/bwameth/bwameth/.*
-              - toolshed.g2.bx.psu.edu/repos/iuc/featurecounts/featurecounts/.*
-              - toolshed.g2.bx.psu.edu/repos/iuc/hisat2/hisat2/.*
-              - toolshed.g2.bx.psu.edu/repos/iuc/valet/valet/.*
-              - toolshed.g2.bx.psu.edu/repos/iuc/varscan_somatic/varscan_somatic/.*
-              - toolshed.g2.bx.psu.edu/repos/nilesh/rseqc/rseqc_bam2wig/.*
-            container:
-              resource_set: medium
-          - tool_ids:
-              - toolshed.g2.bx.psu.edu/repos/devteam/bwa/bwa_mem/.*
-              - toolshed.g2.bx.psu.edu/repos/devteam/bwa/bwa/.*
-              - toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_bam_compare/deeptools_bam_compare/.*
-              - toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_bam_coverage/deeptools_bam_coverage/.*
-              - toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_bam_pe_fragmentsize/deeptools_bam_pe_fragmentsize/.*
-              - toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_bigwig_compare/deeptools_bigwig_compare/.*
-              - toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_compute_gc_bias/deeptools_compute_gc_bias/.*
-              - toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_compute_matrix/deeptools_compute_matrix/.*
-              - toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_correct_gc_bias/deeptools_correct_gc_bias/.*
-              - toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_multi_bam_summary/deeptools_multi_bam_summary/.*
-              - toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_multi_bigwig_summary/deeptools_multi_bigwig_summary/.*
-              - toolshed.g2.bx.psu.edu/repos/devteam/freebayes/freebayes/.*
-              - toolshed.g2.bx.psu.edu/repos/iuc/rgrnastar/rna_star/.*
-              - toolshed.g2.bx.psu.edu/repos/iuc/rnaspades/rnaspades/.*
-              - toolshed.g2.bx.psu.edu/repos/iuc/sra_tools/fasterq_dump/.*
-              - toolshed.g2.bx.psu.edu/repos/iuc/unicycler/unicycler/.*
-              - toolshed.g2.bx.psu.edu/repos/nml/spades/spades/.*
-            container:
-              resource_set: large
-          - tool_ids:
-              - toolshed.g2.bx.psu.edu/repos/iuc/minimap2/minimap2/.*
-              - toolshed.g2.bx.psu.edu/repos/iuc/plink/plink/.*
-            container:
-              resource_set: mlarge
-        resources:
-          resource_sets:
-            small:
-              requests:
-                cpu: 1
-                memory: 2Gi
-              limits:
-                cpu: 2
-                memory: 5Gi
-            medium:
-              requests:
-                cpu: 2
-                memory: 4Gi
-              limits:
-                cpu: 4
-                memory: 10Gi
-            large:
-              requests:
-                cpu: 4
-                memory: 8Gi
-              limits:
-                cpu: 8
-                memory: 16Gi
-            mlarge:
-              requests:
-                cpu: 2
-                memory: 16Gi
-              limits:
-                cpu: 4
-                memory: 20Gi
-          default_resource_set: small
   extraFileMappings:
     /galaxy/server/static/welcome.html:
       applyToWeb: true
