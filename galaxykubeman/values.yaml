@@ -124,6 +124,19 @@ galaxy:
           k8s_pod_retries: "4"
           k8s_walltime_limit: "604800"
           k8s_galaxy_instance_id: "{{ .Release.Name }}"
+          k8s_persistent_volume_claims: |-
+            {{ template "galaxy.pvcname" . -}}:{{ .Values.persistence.mountPath -}}
+            {{- if .Values.cvmfs.enabled -}}
+            {{- range $key, $entry := .Values.cvmfs.galaxyPersistentVolumeClaims -}}
+            ,{{- template "galaxy.fullname" $ -}}-cvmfs-gxy-{{ $key }}-pvc:{{ $entry.mountPath -}}
+            {{- end -}}
+            {{- end -}}
+            {{- if .Values.initJob.downloadToolConfs.enabled -}}
+            ,{{ template "galaxy.pvcname" . -}}/{{ .Values.initJob.downloadToolConfs.volume.subPath }}:{{ .Values.initJob.downloadToolConfs.volume.mountPath -}}
+            {{- end -}}
+            {{- if .Values.extraVolumes -}}
+            {{- template "galaxy.extra_pvc_mounts" . -}}
+            {{- end }}
           #k8s_timeout_seconds_job_deletion: 30
           k8s_run_as_user_id: "101"
           k8s_run_as_group_id: "101"
