@@ -169,8 +169,16 @@ galaxy:
         - type: anonymous_user_concurrent_jobs
           value: 1
       tools:
-        - id: upload1
-          environment: local
+        - environment: local
+          id: upload1
+        - environment: local
+          id: __DATA_FETCH__
+        - environment: local
+          id: __EXPORT_HISTORY_TO_URI__
+        - environment: local
+          id: __IMPORT_HISTORY__
+        - environment: local
+          id: __EXPORT_HISTORY__
     file_sources_conf.yml:
       - doc: "{{ .Values.terra.launch.workspace }}"
         id: "{{ .Values.terra.launch.workspace }}"
