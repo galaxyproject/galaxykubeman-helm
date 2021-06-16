@@ -267,12 +267,6 @@ galaxy:
                                         </a>
                                         <a
                                             class="list-group-item"
-                                            href="https://training.galaxyproject.org/training-material/topics/statistics/"
-                                        >
-                                            <h4 class="list-group-item-heading">Statistics and Machine Learning</h4>
-                                        </a>
-                                        <a
-                                            class="list-group-item"
                                             href="https://training.galaxyproject.org/training-material/topics/proteomics/"
                                         >
                                             <h4 class="list-group-item-heading">Proteomics</h4>
