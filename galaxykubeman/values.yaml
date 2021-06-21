@@ -111,6 +111,7 @@ galaxy:
     galaxy.yml:
       galaxy:
         job_config_file: "/galaxy/server/config/job_conf.yml"
+        enable_beta_gdpr: true
     job_conf.yml:
       runners:
         local:
