@@ -74,7 +74,7 @@ galaxy:
     deploy: false
   image:
     repository: galaxy/galaxy-anvil
-    tag: 21.01
+    tag: 21.05
   persistence:
     accessMode: "ReadWriteMany"
     storageClass: "nfs"
@@ -111,6 +111,7 @@ galaxy:
     galaxy.yml:
       galaxy:
         job_config_file: "/galaxy/server/config/job_conf.yml"
+        enable_beta_gdpr: true
     job_conf.yml:
       runners:
         local:
@@ -169,8 +170,16 @@ galaxy:
         - type: anonymous_user_concurrent_jobs
           value: 1
       tools:
-        - id: upload1
-          environment: local
+        - environment: local
+          id: upload1
+        - environment: local
+          id: __DATA_FETCH__
+        - environment: local
+          id: __EXPORT_HISTORY_TO_URI__
+        - environment: local
+          id: __IMPORT_HISTORY__
+        - environment: local
+          id: __EXPORT_HISTORY__
     file_sources_conf.yml:
       - doc: "{{ .Values.terra.launch.workspace }}"
         id: "{{ .Values.terra.launch.workspace }}"
@@ -258,12 +267,6 @@ galaxy:
                                             href="https://training.galaxyproject.org/training-material/topics/transcriptomics/"
                                         >
                                             <h4 class="list-group-item-heading">Transcriptomics</h4>
-                                        </a>
-                                        <a
-                                            class="list-group-item"
-                                            href="https://training.galaxyproject.org/training-material/topics/statistics/"
-                                        >
-                                            <h4 class="list-group-item-heading">Statistics and Machine Learning</h4>
                                         </a>
                                         <a
                                             class="list-group-item"
