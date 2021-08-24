@@ -9,4 +9,4 @@ dependencies:
     alias: cvmfs
   - name: galaxy
     repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
-    version: 4.0.0
+    version: 4.5.5
