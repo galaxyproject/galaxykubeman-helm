@@ -300,6 +300,7 @@ galaxy:
   extraFileMappings:
     /galaxy/server/static/welcome.html:
       applyToWeb: true
+      applyToNginx: true
       content: |
         <!DOCTYPE html>
         <html lang="en">
