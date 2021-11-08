@@ -297,6 +297,8 @@ galaxy:
           id: __IMPORT_HISTORY__
         - environment: local
           id: __EXPORT_HISTORY__
+        - environment: local
+          id: export_remote
     file_sources_conf.yml:
       - doc: "{{ .Values.terra.launch.workspace }}"
         id: "{{ .Values.terra.launch.workspace }}"
