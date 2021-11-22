@@ -7,6 +7,9 @@ configs: {}
 secrets: {}
   # db-password: changeme
 
+gcs:
+  driverName: gcs.csi.ofek.dev
+
 restore:
   persistence:
     nfs:
@@ -66,6 +69,14 @@ cvmfs:
       enabled: false
 
 galaxy:
+  extraVolumes:
+    - name: galaxy-remote-data
+      persistentVolumeClaim:
+        claimName: "{{ .Release.Name }}-csi-gcs-pvc"
+  extraVolumeMounts:
+    - mountPath: /galaxy/server/database/objects
+      name: galaxy-remote-data
+      subPath: galaxy-data/objects
   jobs:
     maxRequests:
       cpu: 10
@@ -361,6 +372,7 @@ galaxy:
       </toolbox>
     galaxy.yml:
       galaxy:
+        outputs_to_working_directory: true
         job_config_file: "/galaxy/server/config/job_conf.yml"
         enable_beta_gdpr: true
     job_conf.yml:
@@ -376,19 +388,27 @@ galaxy:
           k8s_pod_retries: "4"
           k8s_walltime_limit: "604800"
           k8s_galaxy_instance_id: "{{ .Release.Name }}"
-          k8s_persistent_volume_claims: |-
+          k8s_data_volume_claim: |-
+            {{ .Release.Name }}-csi-gcs-pvc/galaxy-data:{{ .Values.persistence.mountPath -}}
+          k8s_working_volume_claim: |-
             {{ template "galaxy.pvcname" . -}}:{{ .Values.persistence.mountPath -}}
+          k8s_persistent_volume_claims: |-
+            {{ template "galaxy.pvcname" . -}}/cache:{{ .Values.persistence.mountPath -}}/cache,
+            {{- template "galaxy.pvcname" . -}}/config:{{ .Values.persistence.mountPath -}}/config,
+            {{- template "galaxy.pvcname" . -}}/deps:{{ .Values.persistence.mountPath -}}/deps,
+            {{- template "galaxy.pvcname" . -}}/object_store_cache:{{ .Values.persistence.mountPath -}}/object_store_cache,
+            {{- template "galaxy.pvcname" . -}}/tmp:{{ .Values.persistence.mountPath -}}/tmp,
+            {{- template "galaxy.pvcname" . -}}/tool-data:{{ .Values.persistence.mountPath -}}/tool-data,
+            {{- template "galaxy.pvcname" . -}}/tools:{{ .Values.persistence.mountPath -}}/tools,
+            {{- template "galaxy.pvcname" . -}}/tool_search_index:{{ .Values.persistence.mountPath -}}/tool_search_index
             {{- if .Values.cvmfs.enabled -}}
             {{- range $key, $entry := .Values.cvmfs.galaxyPersistentVolumeClaims -}}
-            ,{{- template "galaxy.fullname" $ -}}-cvmfs-gxy-{{ $key }}-pvc:{{ $entry.mountPath -}}
+            ,{{ template "galaxy.fullname" $ -}}-cvmfs-gxy-{{ $key }}-pvc:{{ $entry.mountPath -}}
             {{- end -}}
             {{- end -}}
             {{- if .Values.initJob.downloadToolConfs.enabled -}}
             ,{{ template "galaxy.pvcname" . -}}/{{ .Values.initJob.downloadToolConfs.volume.subPath }}:{{ .Values.initJob.downloadToolConfs.volume.mountPath -}}
-            {{- end -}}
-            {{- if .Values.extraVolumes -}}
-            {{- template "galaxy.extra_pvc_mounts" . -}}
-            {{- end }}
+            {{- end d}}
           #k8s_timeout_seconds_job_deletion: 30
           k8s_run_as_user_id: "101"
           k8s_run_as_group_id: "101"

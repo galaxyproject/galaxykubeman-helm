@@ -8,5 +8,9 @@ dependencies:
     version: 1.6.0
     alias: cvmfs
   - name: galaxy
-    repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
+    repository: https://raw.githubusercontent.com/almahmoud/helm-charts/anvil-gcs/
     version: 4.8.0
+  - name: csi-gcs
+    repository: https://raw.githubusercontent.com/almahmoud/helm-charts/anvil-gcs/
+    version: 0.8.0
+    alias: gcs

@@ -44,3 +44,10 @@ Get default value or max
     {{- .default | int }}
   {{- end }}
 {{- end }}
+
+{{/*
+Get bucket name from gcs uri
+*/}}
+{{- define "galaxykubeman.getBucketName" -}}
+  {{ .Values.configs.WORKSPACE_BUCKET | replace "gs://" "" }}
+{{- end }}
