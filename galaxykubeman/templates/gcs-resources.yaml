@@ -1,0 +1,38 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .Release.Name }}-csi-gcs-sc
+provisioner: {{ .Values.gcs.driverName }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-csi-gcs-pvc
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: {{ .Release.Name }}-csi-gcs-sc
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Name }}-csi-gcs-pv
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 5Gi
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{ .Release.Name }}-csi-gcs-sc
+  csi:
+    driver: {{ .Values.gcs.driverName }}
+    volumeHandle: csi-gcs
+    volumeAttributes:
+      gid: "101"
+      uid: "101"
+      bucket: '{{ include "galaxykubeman.getBucketName" . }}'
+      billingProject: "{{ .Values.configs.GOOGLE_PROJECT }}"
+---
