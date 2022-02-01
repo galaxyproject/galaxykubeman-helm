@@ -443,7 +443,7 @@ galaxy:
         writable: True
         api_url: "{{ .Values.terra.launch.apiURL }}"
         drs_url: "{{ .Values.terra.launch.drsURL }}"
-        google_project: "{{ .Values.config.GOOGLE_PROJECT }}"
+        google_project: "{{ .Values.configs.GOOGLE_PROJECT }}"
 
       - type: ftp
         id: ebi-ftp
