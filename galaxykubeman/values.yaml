@@ -13,7 +13,7 @@ restore:
       galaxy:
         deployVolume: true
         # pvcID: pvc-uuid
-        
+
       cvmfsCache:
         deployVolume: true
         # pvcID: pvc-uuid
@@ -72,7 +72,7 @@ galaxy:
       memory: 20 # in G
     maxLimits:
       cpu: 12
-      memory: 24 # in G
+      memory: 60 # in G
     rules:
       container_mapper_rules.yml:
         mappings:
@@ -107,18 +107,40 @@ galaxy:
             resource_set: small
           set_medium:
             tool_ids:
-              - toolshed.g2.bx.psu.edu/repos/devteam/bowtie2/bowtie2/.*
+              - toolshed.g2.bx.psu.edu/repos/ebi-gxa/scanpy_compute_graph/scanpy_compute_graph/.*
+              - toolshed.g2.bx.psu.edu/repos/ebi-gxa/scanpy_filter_cells/scanpy_filter_cells/.*
+              - toolshed.g2.bx.psu.edu/repos/ebi-gxa/scanpy_filter_genes/scanpy_filter_genes/.*
+              - toolshed.g2.bx.psu.edu/repos/ebi-gxa/scanpy_find_cluster/scanpy_find_cluster/.*
+              - toolshed.g2.bx.psu.edu/repos/ebi-gxa/scanpy_find_markers/scanpy_find_markers/.*
+              - toolshed.g2.bx.psu.edu/repos/ebi-gxa/scanpy_find_variable_genes/scanpy_find_variable_genes/.*
+              - toolshed.g2.bx.psu.edu/repos/ebi-gxa/scanpy_normalise_data/scanpy_normalise_data/.*
+              - toolshed.g2.bx.psu.edu/repos/ebi-gxa/scanpy_parameter_iterator/scanpy_parameter_iterator/.*
+              - toolshed.g2.bx.psu.edu/repos/ebi-gxa/scanpy_parameter_iterator/scanpy_parameter_iterator/.*
+              - toolshed.g2.bx.psu.edu/repos/ebi-gxa/scanpy_plot_embed/scanpy_plot_embed/.*
+              - toolshed.g2.bx.psu.edu/repos/ebi-gxa/scanpy_read_10x/scanpy_read_10x/.*
+              - toolshed.g2.bx.psu.edu/repos/ebi-gxa/scanpy_run_pca/scanpy_run_pca/.*
+              - toolshed.g2.bx.psu.edu/repos/ebi-gxa/scanpy_run_tsne/scanpy_run_tsne/.*
+              - toolshed.g2.bx.psu.edu/repos/ebi-gxa/scanpy_run_umap/scanpy_run_umap/.*
+              - toolshed.g2.bx.psu.edu/repos/ebi-gxa/scanpy_scale_data/scanpy_scale_data/.*
               - toolshed.g2.bx.psu.edu/repos/iuc/bwameth/bwameth/.*
               - toolshed.g2.bx.psu.edu/repos/iuc/featurecounts/featurecounts/.*
               - toolshed.g2.bx.psu.edu/repos/iuc/hisat2/hisat2/.*
+              - toolshed.g2.bx.psu.edu/repos/iuc/scanpy_cluster_reduce_dimension/scanpy_cluster_reduce_dimension/.*
+              - toolshed.g2.bx.psu.edu/repos/iuc/scanpy_filter/scanpy_filter/.*
+              - toolshed.g2.bx.psu.edu/repos/iuc/scanpy_inspect/scanpy_inspect/.*
+              - toolshed.g2.bx.psu.edu/repos/iuc/scanpy_normalize/scanpy_normalize/.*
+              - toolshed.g2.bx.psu.edu/repos/iuc/scanpy_plot/scanpy_plot/.*
+              - toolshed.g2.bx.psu.edu/repos/iuc/scanpy_remove_confounders/scanpy_remove_confounders/.*
               - toolshed.g2.bx.psu.edu/repos/iuc/valet/valet/.*
               - toolshed.g2.bx.psu.edu/repos/iuc/varscan_somatic/varscan_somatic/.*
               - toolshed.g2.bx.psu.edu/repos/nilesh/rseqc/rseqc_bam2wig/.*
             resource_set: medium
           set_large:
             tool_ids:
-              - toolshed.g2.bx.psu.edu/repos/devteam/bwa/bwa_mem/.*
-              - toolshed.g2.bx.psu.edu/repos/devteam/bwa/bwa/.*
+              - toolshed.g2.bx.psu.edu/repos/iuc/anndata_export/anndata_export/.*
+              - toolshed.g2.bx.psu.edu/repos/iuc/anndata_import/anndata_import/.*
+              - toolshed.g2.bx.psu.edu/repos/iuc/anndata_inspect/anndata_inspect/.*
+              - toolshed.g2.bx.psu.edu/repos/iuc/anndata_manipulate/anndata_manipulate/.*
               - toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_bam_compare/deeptools_bam_compare/.*
               - toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_bam_coverage/deeptools_bam_coverage/.*
               - toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_bam_pe_fragmentsize/deeptools_bam_pe_fragmentsize/.*
@@ -128,19 +150,25 @@ galaxy:
               - toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_correct_gc_bias/deeptools_correct_gc_bias/.*
               - toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_multi_bam_summary/deeptools_multi_bam_summary/.*
               - toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_multi_bigwig_summary/deeptools_multi_bigwig_summary/.*
+              - toolshed.g2.bx.psu.edu/repos/devteam/bowtie2/bowtie2/.*
+              - toolshed.g2.bx.psu.edu/repos/devteam/bwa/bwa_mem/.*
+              - toolshed.g2.bx.psu.edu/repos/devteam/bwa/bwa/.*
               - toolshed.g2.bx.psu.edu/repos/devteam/freebayes/freebayes/.*
-              - toolshed.g2.bx.psu.edu/repos/iuc/rgrnastar/rna_star/.*
               - toolshed.g2.bx.psu.edu/repos/iuc/rnaspades/rnaspades/.*
               - toolshed.g2.bx.psu.edu/repos/iuc/sra_tools/fasterq_dump/.*
             resource_set: large
           set_2xlarge:
             tool_ids:
+              - toolshed.g2.bx.psu.edu/repos/bgruening/alevin/alevin/.*
+              - toolshed.g2.bx.psu.edu/repos/bgruening/salmon/salmon/.*
+              - toolshed.g2.bx.psu.edu/repos/iuc/minimap2/minimap2/.*
+              - toolshed.g2.bx.psu.edu/repos/iuc/rgrnastar/rna_star/.*
+              - toolshed.g2.bx.psu.edu/repos/iuc/rna_starsolo/rna_starsolo/.*
               - toolshed.g2.bx.psu.edu/repos/iuc/unicycler/unicycler/.*
               - toolshed.g2.bx.psu.edu/repos/nml/spades/spades/.*
             resource_set: 2xlarge
           set_mlarge:
             tool_ids:
-              - toolshed.g2.bx.psu.edu/repos/iuc/minimap2/minimap2/.*
               - toolshed.g2.bx.psu.edu/repos/iuc/plink/plink/.*
             resource_set: mlarge
         resources:
@@ -150,36 +178,36 @@ galaxy:
                 cpu: '{{include "galaxykubeman.max_value" (dict "default" 1 "max" .Values.jobs.maxRequests.cpu)}}'
                 memory: '{{include "galaxykubeman.max_value" (dict "default" 2 "max" .Values.jobs.maxRequests.memory)}}G'
               limits:
-                cpu: '{{include "galaxykubeman.max_value" (dict "default" 2 "max" .Values.jobs.maxLimits.cpu)}}'
-                memory: '{{include "galaxykubeman.max_value" (dict "default" 5 "max" .Values.jobs.maxLimits.memory)}}G'
+                cpu: '{{include "galaxykubeman.max_value" (dict "default" 1 "max" .Values.jobs.maxLimits.cpu)}}'
+                memory: '{{include "galaxykubeman.max_value" (dict "default" 4 "max" .Values.jobs.maxLimits.memory)}}G'
             medium:
               requests:
                 cpu: '{{include "galaxykubeman.max_value" (dict "default" 2 "max" .Values.jobs.maxRequests.cpu)}}'
                 memory: '{{include "galaxykubeman.max_value" (dict "default" 4 "max" .Values.jobs.maxRequests.memory)}}G'
               limits:
-                cpu: '{{include "galaxykubeman.max_value" (dict "default" 4 "max" .Values.jobs.maxLimits.cpu)}}'
-                memory: '{{include "galaxykubeman.max_value" (dict "default" 10 "max" .Values.jobs.maxLimits.memory)}}G'
+                cpu: '{{include "galaxykubeman.max_value" (dict "default" 2 "max" .Values.jobs.maxLimits.cpu)}}'
+                memory: '{{include "galaxykubeman.max_value" (dict "default" 8 "max" .Values.jobs.maxLimits.memory)}}G'
             large:
               requests:
-                cpu: '{{include "galaxykubeman.max_value" (dict "default" 4 "max" .Values.jobs.maxRequests.cpu)}}'
-                memory: '{{include "galaxykubeman.max_value" (dict "default" 8 "max" .Values.jobs.maxRequests.memory)}}G'
+                cpu: '{{include "galaxykubeman.max_value" (dict "default" 6 "max" .Values.jobs.maxRequests.cpu)}}'
+                memory: '{{include "galaxykubeman.max_value" (dict "default" 12 "max" .Values.jobs.maxRequests.memory)}}G'
               limits:
-                cpu: '{{include "galaxykubeman.max_value" (dict "default" 8 "max" .Values.jobs.maxLimits.cpu)}}'
+                cpu: '{{include "galaxykubeman.max_value" (dict "default" 6 "max" .Values.jobs.maxLimits.cpu)}}'
                 memory: '{{include "galaxykubeman.max_value" (dict "default" 16 "max" .Values.jobs.maxLimits.memory)}}G'
             2xlarge:
               requests:
                 cpu: '{{include "galaxykubeman.max_value" (dict "default" 10 "max" .Values.jobs.maxRequests.cpu)}}'
-                memory: '{{include "galaxykubeman.max_value" (dict "default" 20 "max" .Values.jobs.maxRequests.memory)}}G'
+                memory: '{{include "galaxykubeman.max_value" (dict "default" 40 "max" .Values.jobs.maxRequests.memory)}}G'
               limits:
-                cpu: '{{include "galaxykubeman.max_value" (dict "default" 12 "max" .Values.jobs.maxLimits.cpu)}}'
-                memory: '{{include "galaxykubeman.max_value" (dict "default" 24 "max" .Values.jobs.maxLimits.memory)}}G'
+                cpu: '{{include "galaxykubeman.max_value" (dict "default" 10 "max" .Values.jobs.maxLimits.cpu)}}'
+                memory: '{{include "galaxykubeman.max_value" (dict "default" 60 "max" .Values.jobs.maxLimits.memory)}}G'
             mlarge:
               requests:
-                cpu: '{{include "galaxykubeman.max_value" (dict "default" 2 "max" .Values.jobs.maxRequests.cpu)}}'
-                memory: '{{include "galaxykubeman.max_value" (dict "default" 16 "max" .Values.jobs.maxRequests.memory)}}G'
+                cpu: '{{include "galaxykubeman.max_value" (dict "default" 4 "max" .Values.jobs.maxRequests.cpu)}}'
+                memory: '{{include "galaxykubeman.max_value" (dict "default" 32 "max" .Values.jobs.maxRequests.memory)}}G'
               limits:
                 cpu: '{{include "galaxykubeman.max_value" (dict "default" 4 "max" .Values.jobs.maxLimits.cpu)}}'
-                memory: '{{include "galaxykubeman.max_value" (dict "default" 20 "max" .Values.jobs.maxLimits.memory)}}G'
+                memory: '{{include "galaxykubeman.max_value" (dict "default" 48 "max" .Values.jobs.maxLimits.memory)}}G'
           default_resource_set: small
   postgresql:
     deploy: true
@@ -725,7 +753,7 @@ galaxy:
                 </div>
             </body>
         </html>
- 
+
 
 rbac:
   enabled: true
