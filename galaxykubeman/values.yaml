@@ -53,17 +53,6 @@ nfs:
     mountOptions:
       - vers=4.2
       - noatime
-cvmfs:
-  cache:
-    alienCache:
-      enabled: true
-      size: 10000
-      storageClass: "nfs"
-      # existingClaim: "{{ .Release.Name }}-cvmfs-alien-cache-pvc"
-    localCache:
-      enabled: false
-    preload:
-      enabled: false
 
 galaxy:
   jobs:
@@ -124,7 +113,6 @@ galaxy:
               - toolshed.g2.bx.psu.edu/repos/ebi-gxa/scanpy_scale_data/scanpy_scale_data/.*
               - toolshed.g2.bx.psu.edu/repos/iuc/bwameth/bwameth/.*
               - toolshed.g2.bx.psu.edu/repos/iuc/featurecounts/featurecounts/.*
-              - toolshed.g2.bx.psu.edu/repos/iuc/hisat2/hisat2/.*
               - toolshed.g2.bx.psu.edu/repos/iuc/scanpy_cluster_reduce_dimension/scanpy_cluster_reduce_dimension/.*
               - toolshed.g2.bx.psu.edu/repos/iuc/scanpy_filter/scanpy_filter/.*
               - toolshed.g2.bx.psu.edu/repos/iuc/scanpy_inspect/scanpy_inspect/.*
@@ -141,6 +129,7 @@ galaxy:
               - toolshed.g2.bx.psu.edu/repos/iuc/anndata_import/anndata_import/.*
               - toolshed.g2.bx.psu.edu/repos/iuc/anndata_inspect/anndata_inspect/.*
               - toolshed.g2.bx.psu.edu/repos/iuc/anndata_manipulate/anndata_manipulate/.*
+              - toolshed.g2.bx.psu.edu/repos/iuc/hisat2/hisat2/.*
               - toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_bam_compare/deeptools_bam_compare/.*
               - toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_bam_coverage/deeptools_bam_coverage/.*
               - toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_bam_pe_fragmentsize/deeptools_bam_pe_fragmentsize/.*
@@ -212,9 +201,6 @@ galaxy:
   postgresql:
     deploy: true
     # nodeSelector: "cloud.google.com/gke-nodepool: good-pool"
-  cvmfs:
-    enabled: true
-    deploy: false
   image:
     repository: galaxy/galaxy-anvil
     tag: 21.09
@@ -391,46 +377,6 @@ galaxy:
       galaxy:
         job_config_file: "/galaxy/server/config/job_conf.yml"
         enable_beta_gdpr: true
-    job_conf.yml:
-      runners:
-        local:
-          load: galaxy.jobs.runners.local:LocalJobRunner
-          workers: 4
-        k8s:
-          load: galaxy.jobs.runners.kubernetes:KubernetesJobRunner
-          k8s_use_service_account: true
-          k8s_job_api_version: batch/v1
-          k8s_namespace: "{{ .Release.Namespace }}"
-          k8s_pod_retries: "4"
-          k8s_walltime_limit: "604800"
-          k8s_galaxy_instance_id: "{{ .Release.Name }}"
-          k8s_persistent_volume_claims: |-
-            {{ template "galaxy.pvcname" . -}}:{{ .Values.persistence.mountPath -}}
-            {{- if .Values.cvmfs.enabled -}}
-            {{- range $key, $entry := .Values.cvmfs.galaxyPersistentVolumeClaims -}}
-            ,{{- template "galaxy.fullname" $ -}}-cvmfs-gxy-{{ $key }}-pvc:{{ $entry.mountPath -}}
-            {{- end -}}
-            {{- end -}}
-            {{- if .Values.initJob.downloadToolConfs.enabled -}}
-            ,{{ template "galaxy.pvcname" . -}}/{{ .Values.initJob.downloadToolConfs.volume.subPath }}:{{ .Values.initJob.downloadToolConfs.volume.mountPath -}}
-            {{- end -}}
-            {{- if .Values.extraVolumes -}}
-            {{- template "galaxy.extra_pvc_mounts" . -}}
-            {{- end }}
-          #k8s_timeout_seconds_job_deletion: 30
-          k8s_run_as_user_id: "101"
-          k8s_run_as_group_id: "101"
-          k8s_supplemental_group_id: "101"
-          k8s_fs_group_id: "101"
-          k8s_pull_policy: IfNotPresent
-          k8s_cleanup_job: onsuccess
-          k8s_pod_priority_class: '{{ include "galaxy.fullname" . }}-job-priority'
-          # Requires an image with https://github.com/galaxyproject/galaxy/pull/10380
-          # k8s_node_selector: |-
-            # cloud.google.com/gke-nodepool: good-pool
-      handling:
-        assign:
-          - "db-skip-locked"
       execution:
         default: dynamic_k8s_dispatcher
         environments:
