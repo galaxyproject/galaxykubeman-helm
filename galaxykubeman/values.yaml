@@ -375,25 +375,8 @@ galaxy:
       </toolbox>
     galaxy.yml:
       galaxy:
-        job_config_file: "/galaxy/server/config/job_conf.yml"
         enable_beta_gdpr: true
-      execution:
-        default: dynamic_k8s_dispatcher
-        environments:
-          local:
-            runner: local
-          dynamic_k8s_dispatcher:
-            runner: dynamic
-            docker_enabled: true
-            type: python
-            function: k8s_container_mapper
-            docker_default_container_id: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-            #max_pod_retries: 3
-      limits:
-        - type: registered_user_concurrent_jobs
-          value: 10
-        - type: anonymous_user_concurrent_jobs
-          value: 1
+    job_conf.yml:
       tools:
         - environment: local
           id: upload1
