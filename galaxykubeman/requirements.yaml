@@ -3,10 +3,6 @@ dependencies:
     repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
     version: 1.1.2
     alias: nfs
-  - name: galaxy-cvmfs-csi
-    repository: https://raw.githubusercontent.com/cloudve/helm-charts/master/
-    version: 1.6.0
-    alias: cvmfs
   - name: galaxy
     repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
     version: 4.9.0

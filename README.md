@@ -1,5 +1,7 @@
 # Galaxy on Kubernetes Management (GalaxyKubeMan) Helm Chart
-Helm chart for Galaxy KubeMan used for deploying Galaxy with NFS (for a multi-node shared filesystem), CVMFS (for Galaxy tool and reference data), and CloudMan (for managing the Galaxy Kubernetes deployment)
+Helm chart for Galaxy KubeMan used for deploying Galaxy with NFS (for a
+multi-node shared filesystem), S3FS (for Galaxy tool and reference data), and
+CloudMan (for managing the Galaxy Kubernetes deployment).
 
 ## TL;DR on GKE
 

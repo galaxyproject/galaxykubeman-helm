@@ -61,6 +61,8 @@ spec:
 ---
 {{ end -}}
 {{ end -}}
+{{ if hasKey .Values.restore.persistence.nfs "cvmfsCache"  -}}
+{{ if .Values.restore.persistence.nfs.cvmfsCache.deployVolume -}}
 {{ if .Values.restore.persistence.nfs.cvmfsCache.pvcID -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -122,5 +124,7 @@ spec:
     namespace: "{{ .Release.Namespace }}"
     name: "{{ .Release.Name }}-cvmfs-alien-cache-pvc"
 ---
+{{ end -}}
+{{ end -}}
 {{ end -}}
 {{ end -}}
