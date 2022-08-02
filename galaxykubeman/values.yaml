@@ -14,10 +14,6 @@ restore:
         deployVolume: true
         # pvcID: pvc-uuid
 
-      cvmfsCache:
-        deployVolume: true
-        # pvcID: pvc-uuid
-
 persistence:
   nfs:
     name: "nfs-disk"
