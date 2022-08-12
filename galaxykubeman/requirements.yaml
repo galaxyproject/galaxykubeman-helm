@@ -1,8 +1,0 @@
-dependencies:
-  - name: nfs-server-provisioner
-    repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
-    version: 1.1.2
-    alias: nfs
-  - name: galaxy
-    repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
-    version: 4.9.0

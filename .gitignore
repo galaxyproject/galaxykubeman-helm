@@ -92,4 +92,7 @@ ENV/
 *.swp
 *.swo
 
+.DS_Store
+
 galaxykubeman/charts/
+galaxykubeman/Chart.lock
