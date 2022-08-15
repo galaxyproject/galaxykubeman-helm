@@ -3,7 +3,7 @@ type: application
 appVersion: 21.09
 description: A chart for deploying and managing a single Galaxy out-of-the-box instance on Managed Kubernetes clusters (GKE)
 name: galaxykubeman
-version: 1.6.3-anvil.4
+version: 2.0.0
 dependencies:
   - name: nfs-server-provisioner
     repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
