@@ -16,6 +16,6 @@ jobs:
         with:
           persist-credentials: false
       - name: Helm dep update
-        run: cd galaxykubeman-helm/ && helm dep update && cd ..
+        run: cd galaxykubeman/ && helm dep update && cd ..
       - name: Helm lint
         run: helm lint galaxykubeman/
