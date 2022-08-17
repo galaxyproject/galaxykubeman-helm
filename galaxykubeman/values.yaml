@@ -17,7 +17,7 @@ restore:
 persistence:
   nfs:
     name: "nfs-disk"
-    # size: 500Gi
+    size: 500Gi
     storageClass: "manual"
     accessMode: ReadWriteOnce
     persistentVolume:
@@ -27,7 +27,7 @@ persistence:
           fsType: ext4
   postgres:
     name: "postgres-disk"
-    # size: 10Gi
+    size: 10Gi
     storageClass: "manual"
     accessMode: ReadWriteOnce
     persistentVolume:

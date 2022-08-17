@@ -27,4 +27,4 @@ spec:
         args:
           - "sh"
           - "-c"
-          - 'kubectl get job -n {{ .Release.Namespace }} -o name | grep -v "pre-delete" | xargs kubectl delete -n {{ .Release.Namespace }}; kubectl get deployment -n {{ .Release.Namespace }} -o name | grep -E "(web|job-[0-9]+|workflow|nginx)$" | xargs kubectl delete -n {{ .Release.Namespace }}
+          - 'kubectl get job -n {{ .Release.Namespace }} -o name | grep -v "pre-delete" | xargs kubectl delete -n {{ .Release.Namespace }}; kubectl get deployment -n {{ .Release.Namespace }} -o name | grep -E "(web|job-[0-9]+|workflow|nginx)$" | xargs kubectl delete -n {{ .Release.Namespace }}'
