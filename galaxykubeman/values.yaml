@@ -208,7 +208,6 @@ galaxy:
   ingress:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: "nginx"
       nginx.ingress.kubernetes.io/auth-tls-pass-certificate-to-upstream: "true"
       nginx.ingress.kubernetes.io/auth-tls-secret: "{{.Release.Namespace}}/ca-secret"
       nginx.ingress.kubernetes.io/auth-tls-verify-client: "on"
