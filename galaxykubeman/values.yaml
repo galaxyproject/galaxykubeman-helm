@@ -196,6 +196,8 @@ galaxy:
           default_resource_set: small
   postgresql:
     deploy: true
+    persistence:
+      storageClass: "standard"
     # nodeSelector: "cloud.google.com/gke-nodepool: good-pool"
   image:
     repository: galaxy/galaxy-anvil
@@ -216,9 +218,6 @@ galaxy:
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
     tls:
       - secretName: "tls-secret"
-  postgresql:
-    persistence:
-      storageClass: "standard"
   influxdb:
     enabled: false
   extraEnv: []
