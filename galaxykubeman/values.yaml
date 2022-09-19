@@ -63,7 +63,7 @@ galaxy:
     # nodeSelector: "cloud.google.com/gke-nodepool: good-pool"
   image:
     repository: quay.io/galaxyproject/galaxy-anvil
-    tag: 22.05
+    tag: "22.05-auto"
   persistence:
     accessMode: "ReadWriteMany"
     storageClass: "nfs"
