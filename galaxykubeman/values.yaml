@@ -90,7 +90,9 @@ galaxy:
   #     configMapKeyRef:
   #       name: "{{.Release.Name}}-[galaxykubeman|leo]-configs"
   #       key: WORKSPACE_NAME
-
+  rabbitmq:
+    persistence:
+      storageClassName: "standard"
   terra:
      launch:
         workspace: launchWorkspace
