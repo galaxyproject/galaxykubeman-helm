@@ -58,9 +58,6 @@ galaxy:
     maxLimits:
       cpu: 12
       memory: 60 # in G
-  postgresql:
-    deploy: true
-    # nodeSelector: "cloud.google.com/gke-nodepool: good-pool"
   image:
     repository: quay.io/galaxyproject/galaxy-anvil
     tag: "22.05"
@@ -80,6 +77,7 @@ galaxy:
     tls:
       - secretName: "tls-secret"
   postgresql:
+    # nodeSelector: "cloud.google.com/gke-nodepool: good-pool"
     persistence:
       storageClass: "standard"
   influxdb:
