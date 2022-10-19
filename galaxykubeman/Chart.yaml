@@ -12,4 +12,4 @@ dependencies:
     alias: nfs
   - name: galaxy
     repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
-    version: 5.2.0-anvil.1
+    version: 5.3.1-anvil.1
