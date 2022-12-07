@@ -91,6 +91,7 @@ galaxy:
   rabbitmq:
     persistence:
       storageClassName: "standard"
+  # nodeSelector: node-1
   terra:
      launch:
         workspace: launchWorkspace
