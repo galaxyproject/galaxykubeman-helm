@@ -7,9 +7,9 @@ version: 2.2.0
 icon: https://galaxyproject.org/images/galaxy-logos/galaxy_project_logo_square.png
 dependencies:
   - name: nfs-server-provisioner
-    repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
-    version: 1.1.2
+    repository: https://kubernetes-sigs.github.io/nfs-ganesha-server-and-external-provisioner/
+    version: 1.5.0
     alias: nfs
   - name: galaxy
     repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
-    version: 5.3.1-anvil.1
+    version: 5.4.0-anvil.1
