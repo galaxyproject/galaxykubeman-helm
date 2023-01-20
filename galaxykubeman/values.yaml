@@ -88,6 +88,8 @@ galaxy:
   #     configMapKeyRef:
   #       name: "{{.Release.Name}}-[galaxykubeman|leo]-configs"
   #       key: WORKSPACE_NAME
+  tusd:
+    enabled: false
   rabbitmq:
     persistence:
       storageClassName: "standard"
