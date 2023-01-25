@@ -10,6 +10,17 @@ dependencies:
     repository: https://kubernetes-sigs.github.io/nfs-ganesha-server-and-external-provisioner/
     version: 1.5.0
     alias: nfs
-  - name: galaxy
-    repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
-    version: 5.4.0-anvil.1
+  - name: galaxy-cvmfs-csi
+    repository: https://raw.githubusercontent.com/cloudve/helm-charts/master/
+    version: 2.0.0
+    condition: cvmfs.deploy
+    alias: cvmfs
+    tags:
+      - deploy-cvmfs
+  - name: rabbitmq-cluster-operator
+    repository: https://charts.bitnami.com/bitnami
+    version: 2.6.12
+    condition: rabbitmq.deploy
+    alias: rabbitmq
+    tags:
+      - deploy-rabbitmq
