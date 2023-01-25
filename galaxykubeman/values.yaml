@@ -51,7 +51,7 @@ nfs:
       - noatime
 
 galaxy:
-  version: 5.4.0-anvil.1
+  version: 5.4.0-anvil.2
   jobs:
     maxRequests:
       cpu: 10
@@ -75,12 +75,15 @@ galaxy:
       nginx.ingress.kubernetes.io/auth-tls-verify-client: "on"
       nginx.ingress.kubernetes.io/auth-tls-verify-depth: "1"
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    tls:
-      - secretName: "tls-secret"
+    # tls:
+    #   - secretName: "tls-secret"
   postgresql:
     # nodeSelector: "cloud.google.com/gke-nodepool: good-pool"
+    deploy: false
     persistence:
       storageClass: "standard"
+  cvmfs:
+    deploy: false
   influxdb:
     enabled: false
   extraEnv: []
@@ -89,9 +92,12 @@ galaxy:
   #     configMapKeyRef:
   #       name: "{{.Release.Name}}-[galaxykubeman|leo]-configs"
   #       key: WORKSPACE_NAME
-  tusd:
-    enabled: false
+  # tusd:
+  #   ingress:
+  #     tls:
+  #       - secretName: "tls-secret"
   rabbitmq:
+    deploy: false
     persistence:
       storageClassName: "standard"
   terra:
