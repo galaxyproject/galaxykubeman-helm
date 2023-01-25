@@ -24,6 +24,17 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 
 {{/*
+Define pod priority class
+*/}}
+{{- define "galaxykubeman.pod-priority-class" -}}
+{{- if .Values.galaxy.jobs.priorityClass.existingClass -}}
+{{- tpl .Values.galaxy.jobs.priorityClass.existingClass . -}}
+{{- else -}}
+{{- printf "%s-job-priority" (include "galaxykubeman.fullname" .) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Create chart name and version as used by the chart label.
 */}}
 {{- define "galaxykubeman.chart" -}}
