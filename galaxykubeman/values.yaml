@@ -51,8 +51,10 @@ nfs:
       - noatime
 
 galaxy:
-  version: 5.4.0-anvil.2
+  version: 5.4.0-anvil.3
   jobs:
+    priorityClass:
+      existingClass: "{{ .Release.Namespace }}-priority-class"
     maxRequests:
       cpu: 10
       memory: 20 # in G
