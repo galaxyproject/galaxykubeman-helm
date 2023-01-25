@@ -79,7 +79,6 @@ galaxy:
     #   - secretName: "tls-secret"
   postgresql:
     # nodeSelector: "cloud.google.com/gke-nodepool: good-pool"
-    deploy: false
     persistence:
       storageClass: "standard"
   cvmfs:

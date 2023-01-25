@@ -13,4 +13,4 @@ data:
   setup_galaxy.sh: |
     helm repo add anvil https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
     helm repo update
-    helm install -n {{ .Release.Namespace }} --version {{ .Values.galaxy.version }} {{ .Release.Name }}-galaxy anvil/galaxy -f /scripts/galaxy.yml --set cvmfs.storageClassName="{{ .Release.Name }}-cvmfs"
+    helm upgrade --install -n {{ .Release.Namespace }} --version {{ .Values.galaxy.version }} {{ .Release.Name }}-galaxy anvil/galaxy -f /scripts/galaxy.yml --set cvmfs.storageClassName="{{ .Release.Name }}-cvmfs"

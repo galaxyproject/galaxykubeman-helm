@@ -27,4 +27,4 @@ spec:
         args:
           - "sh"
           - "-c"
-          - 'helm uninstall -n {{ .Release.Namespace }} {{ .Release.Name }}-galaxy'
+          - 'helm uninstall -n {{ .Release.Namespace }} {{ .Release.Name }}-galaxy --wait'
