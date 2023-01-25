@@ -51,6 +51,7 @@ nfs:
       - noatime
 
 galaxy:
+  version: 5.4.0-anvil.1
   jobs:
     maxRequests:
       cpu: 10

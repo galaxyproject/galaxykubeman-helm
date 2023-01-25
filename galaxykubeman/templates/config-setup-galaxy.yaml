@@ -1,0 +1,16 @@
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-galaxykubeman-setup-galaxy
+  labels:
+    app.kubernetes.io/name: {{ include "galaxykubeman.name" . }}
+    helm.sh/chart: {{ include "galaxykubeman.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+kind: ConfigMap
+data:
+  galaxy.yml: |    
+    {{- .Values.galaxy | toYaml | nindent 4 }}
+  setup_galaxy.sh: |
+    helm repo add anvil https://raw.githubusercontent.com/cloudve/helm-charts/anvil/ 
+    helm repo update
+    helm install -n {{ .Release.Namespace }} --version {{ .Values.galaxy.version }} {{ .Release.Name }}-galaxy anvil/galaxy -f /scripts/galaxy.yml --set cvmfs.storageClassName "{{ .Release.Name }}-cvmfs"
