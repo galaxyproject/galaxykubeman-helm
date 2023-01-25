@@ -15,7 +15,7 @@ rules:
     verbs: ["*"]
   - apiGroups: ["*"]
     resources: ["*"]
-    verbs: ["delete"]
+    verbs: ["*"]
 
 ---
 
