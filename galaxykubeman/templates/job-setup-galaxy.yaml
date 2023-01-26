@@ -26,6 +26,16 @@ spec:
         volumeMounts:
           - name: galaxy-conf-files
             mountPath: /scripts
+        readinessProbe:
+          exec:
+            command:
+              - 'sh'
+              - '-c'
+              - 'if [ "$(helm status -n {{ .Release.Namespace }} {{ .Release.Name }}-galaxy | grep \"STATUS\" | awk -F\": \" \"{print $2}\")" = "deployed" ]; then exit 0; else exit 1; fi;'
+          initialDelaySeconds: {{ .Values.galaxyInstallJob.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.galaxyInstallJob.readinessProbe.periodSeconds }}
+          failureThreshold: {{ .Values.galaxyInstallJob.readinessProbe.failureThreshold }}
+          timeoutSeconds: {{ .Values.galaxyInstallJob.readinessProbe.timeoutSeconds }}
       volumes:
         - name: galaxy-conf-files
           configMap:
