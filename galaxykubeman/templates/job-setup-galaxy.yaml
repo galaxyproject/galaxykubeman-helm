@@ -30,8 +30,7 @@ spec:
           exec:
             command:
               - 'sh'
-              - '-c'
-              - 'if [ "$(helm status -n {{ .Release.Namespace }} {{ .Release.Name }}-galaxy | grep \"STATUS\" | awk -F\": \" \"{print $2}\")" = "deployed" ]; then exit 0; else exit 1; fi;'
+              - '/scripts/check_galaxy.sh
           initialDelaySeconds: {{ .Values.galaxyInstallJob.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.galaxyInstallJob.readinessProbe.periodSeconds }}
           failureThreshold: {{ .Values.galaxyInstallJob.readinessProbe.failureThreshold }}
