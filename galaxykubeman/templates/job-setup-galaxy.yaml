@@ -38,8 +38,8 @@ spec:
         readinessProbe:
           exec:
             command:
-              - 'sh'
-              - '/scripts/check_galaxy.sh
+              - "sh"
+              - "/scripts/check_galaxy.sh"
           initialDelaySeconds: {{ .Values.galaxyInstallJob.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.galaxyInstallJob.readinessProbe.periodSeconds }}
           failureThreshold: {{ .Values.galaxyInstallJob.readinessProbe.failureThreshold }}
