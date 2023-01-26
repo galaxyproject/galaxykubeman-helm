@@ -29,8 +29,8 @@ spec:
         readinessProbe:
           exec:
             command:
-              - sh
-              - -c
+              - 'sh'
+              - '-c'
               - if [ "$(helm status -n {{ .Release.Namespace }} {{ .Release.Name }}-galaxy | grep 'STATUS' | awk -F': ' '{print $2}')" = "deployed" ]; then exit 0; else exit 1; fi;
           initialDelaySeconds: {{ .Values.galaxyInstallJob.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.galaxyInstallJob.readinessProbe.periodSeconds }}
