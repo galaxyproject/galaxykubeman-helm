@@ -50,6 +50,13 @@ nfs:
       - vers=4.2
       - noatime
 
+galaxyInstallJob:
+  readinessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 5
+    failureThreshold: 30
+    timeoutSeconds: 10
+
 galaxy:
   version: 5.4.0-anvil.3
   jobs:
