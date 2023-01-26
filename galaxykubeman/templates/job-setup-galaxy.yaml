@@ -17,21 +17,12 @@ spec:
     spec:
       serviceAccountName: "{{ .Values.rbac.serviceAccount }}"
       restartPolicy: Never
-      initContainers:
+      containers:
       - name: kubectl-galaxy-setup
         image: "galaxy/cloudman-server:latest"
         args:
           - "sh"
           - "/scripts/setup_galaxy.sh"
-        volumeMounts:
-          - name: galaxy-conf-files
-            mountPath: /scripts
-      containers:
-      - name: kubectl-galaxy-check
-        image: "galaxy/cloudman-server:latest"
-        args:
-          - "sh"
-          - "/scripts/check_galaxy.sh"
         volumeMounts:
           - name: galaxy-conf-files
             mountPath: /scripts
