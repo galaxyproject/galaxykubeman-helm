@@ -13,4 +13,6 @@ data:
   setup_galaxy.sh: |
     helm repo add anvil https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
     helm repo update
-    helm upgrade --install -n {{ .Release.Namespace }} --version {{ .Values.galaxy.version }} {{ .Release.Name }}-galaxy anvil/galaxy -f /scripts/galaxy.yml --set cvmfs.storageClassName="{{ .Release.Name }}-cvmfs"
+    helm upgrade --install -n {{ .Release.Namespace }} --version {{ .Values.galaxy.version }} {{ .Release.Name }}-galaxy anvil/galaxy -f /scripts/galaxy.yml --set cvmfs.storageClassName="{{ .Release.Name }}-cvmfs" --wait --timeout=15m0s
+  check_galaxy.sh: |
+    if [ "$(helm status -n {{ .Release.Namespace }} {{ .Release.Name }}-galaxy | grep 'STATUS' | awk -F': ' '{print $2}')" = "deployed" ]; then exit 0; else exit 1; fi;

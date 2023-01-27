@@ -7,6 +7,7 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
 spec:
+  ttlSecondsAfterFinished: 600
   template:
     metadata:
       name: "{{ .Release.Name }}-setup-galaxy"
@@ -29,9 +30,8 @@ spec:
         readinessProbe:
           exec:
             command:
-              - 'sh'
-              - '-c'
-              - 'if [ "$(helm status -n {{ .Release.Namespace }} {{ .Release.Name }}-galaxy | grep \"STATUS\" | awk -F\": \" \"{print $2}\")" = "deployed" ]; then exit 0; else exit 1; fi;'
+              - "sh"
+              - "/scripts/check_galaxy.sh"
           initialDelaySeconds: {{ .Values.galaxyInstallJob.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.galaxyInstallJob.readinessProbe.periodSeconds }}
           failureThreshold: {{ .Values.galaxyInstallJob.readinessProbe.failureThreshold }}

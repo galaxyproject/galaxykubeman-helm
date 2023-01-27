@@ -6,12 +6,11 @@ CloudMan (for managing the Galaxy Kubernetes deployment).
 ## TL;DR on GKE
 
 ```console
-gcloud container clusters create example-gke-cluster --cluster-version=1.15.9-gke.24 --no-enable-autorepair --disk-size=100 --num-nodes=2 --machine-type=n1-standard-4
+gcloud container clusters create example-gke-cluster --cluster-version="1.24" --no-enable-autorepair --disk-size=100 --num-nodes=1 --machine-type=e2-standard-16 --zone "us-east1-b"
 git clone https://github.com/galaxyproject/galaxykubeman-helm
 cd galaxykubeman-helm/galaxykubeman
 helm dependency update
-kubectl create namespace mynamespace
-helm install desired-release-name . --namespace mynamespace
+helm install --create-namespace --namespace mynamespace desired-release-name . --wait --wait-for-jobs
 ```
 
 ## Leo updates

@@ -96,3 +96,7 @@ ENV/
 
 galaxykubeman/charts/
 galaxykubeman/Chart.lock
+
+ea-values.yaml
+k3s-values.yaml
+rbac-gkm.yaml
