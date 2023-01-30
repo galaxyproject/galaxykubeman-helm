@@ -28,7 +28,7 @@ spec:
           - "sh"
           - "-c"
           - >
-            helm uninstall -n {{ .Release.Namespace }} {{ .Release.Name }}-galaxy --wait;
+            helm uninstall -n {{ .Release.Namespace }} {{ .Release.Name }} --wait;
             kubectl get job -n {{ .Release.Namespace }} -o name | grep -v "pre-delete" | xargs kubectl delete -n {{ .Release.Namespace }};
             kubectl get daemonset -n {{ .Release.Namespace }} -o name | grep cvmfscsi-nodeplugin | xargs kubectl delete -n {{ .Release.Namespace }};
             kubectl get pvc -n {{ .Release.Namespace }} -o name | grep -E alien-cache$ | xargs kubectl delete -n {{ .Release.Namespace }}
