@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: "{{ .Release.Name }}-galaxy-pvc"
+  name: "{{ .Release.Name }}-galaxy-galaxy-pvc"
   labels:
     app.kubernetes.io/name: {{ include "galaxykubeman.name" . }}
     helm.sh/chart: {{ include "galaxykubeman.chart" . }}
@@ -57,8 +57,7 @@ spec:
     storage: '{{ .Values.galaxy.persistence.size }}'
   claimRef:
     namespace: {{ .Release.Namespace }}
-    name: {{ .Release.Name }}-galaxy-pvc
+    name: {{ .Release.Name }}-galaxy-galaxy-pvc
 ---
 {{ end -}}
 {{ end -}}
-
