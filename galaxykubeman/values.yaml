@@ -50,6 +50,16 @@ nfs:
       - vers=4.2
       - noatime
 
+cvmfs:
+  cvmfscsi:
+    cache:
+      alien:
+        pvc:
+          name: cvmfs-alien-cache
+        # volumeSpec:
+        #   persistentVolumeClaim:
+        #     claimName: "{{ .Release.Name }}-cvmfs-alien-cache-pvc"
+
 galaxyInstallJob:
   readinessProbe:
     initialDelaySeconds: 30
@@ -100,7 +110,8 @@ galaxy:
   #     configMapKeyRef:
   #       name: "{{.Release.Name}}-[galaxykubeman|leo]-configs"
   #       key: WORKSPACE_NAME
-  # tusd:
+  tusd:
+    enabled: false
   #   ingress:
   #     tls:
   #       - secretName: "tls-secret"
@@ -252,6 +263,14 @@ galaxy:
     galaxy.yml:
       galaxy:
         enable_beta_gdpr: true
+    job_conf.yml:
+        execution:
+          environments:
+            tpv_dispatcher:
+              tpv_config_files:
+                - https://raw.githubusercontent.com/galaxyproject/tpv-shared-database/main/tools.yml
+                - lib/galaxy/jobs/rules/tpv_rules_local.yml
+                - https://raw.githubusercontent.com/galaxyproject/galaxykubeman-helm/anvil/tool-configs.yaml
     file_sources_conf.yml:
       - doc: "{{ .Values.terra.launch.workspace }}"
         id: "{{ .Values.terra.launch.workspace }}"
