@@ -267,9 +267,9 @@ galaxy:
         execution:
           environments:
             tpv_dispatcher:
+              docker_enabled: false
               tpv_config_files:
                 - https://raw.githubusercontent.com/galaxyproject/tpv-shared-database/main/tools.yml
-                - lib/galaxy/jobs/rules/tpv_rules_local.yml
                 - https://raw.githubusercontent.com/galaxyproject/galaxykubeman-helm/anvil/tool-configs.yaml
     file_sources_conf.yml:
       - doc: "{{ .Values.terra.launch.workspace }}"
