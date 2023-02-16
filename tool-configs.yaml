@@ -1,5 +1,5 @@
 tools:
-  __DATA_FETCH__
+  __DATA_FETCH__:
     scheduling:
       require:
         - local
