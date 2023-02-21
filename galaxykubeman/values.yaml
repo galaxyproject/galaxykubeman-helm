@@ -72,6 +72,12 @@ galaxy:
   jobs:
     priorityClass:
       existingClass: "{{ .Release.Namespace }}-priority-class"
+    rules:
+      tpv_rules_local.yml:
+        tools:
+          default:
+            params:
+              docker_enabled: false
     maxRequests:
       cpu: 10
       memory: 20 # in G
