@@ -7,7 +7,7 @@ tools:
         - local
 destinations:
   k8s:
-    max_accepted_cores: 2
+    max_cores: 2
     cores: 2
-    max_accepted_mem: 20
+    max_mem: 20
     mem: 20
