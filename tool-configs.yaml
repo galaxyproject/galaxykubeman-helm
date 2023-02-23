@@ -5,3 +5,9 @@ tools:
     scheduling:
       require:
         - local
+destinations:
+  k8s:
+    max_accepted_cores: 2
+    cores: 2
+    max_accepted_mem: 20Gi
+    mem: 20Gi
