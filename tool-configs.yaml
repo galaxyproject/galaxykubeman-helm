@@ -1,5 +1,7 @@
 tools:
   __DATA_FETCH__:
+    params:
+      docker_enabled: false
     scheduling:
       require:
         - local
