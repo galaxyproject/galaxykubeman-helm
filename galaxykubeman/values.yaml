@@ -68,16 +68,10 @@ galaxyInstallJob:
     timeoutSeconds: 10
 
 galaxy:
-  version: 5.4.0-anvil.3
+  version: 5.7.0-anvil.1
   jobs:
     priorityClass:
       existingClass: "{{ .Release.Namespace }}-priority-class"
-    rules:
-      tpv_rules_local.yml:
-        tools:
-          default:
-            params:
-              docker_enabled: false
     maxRequests:
       cpu: 10
       memory: 20 # in G
@@ -86,7 +80,7 @@ galaxy:
       memory: 60 # in G
   image:
     repository: quay.io/galaxyproject/galaxy-anvil
-    tag: "22.05"
+    tag: "sync-230-auto"
   persistence:
     accessMode: "ReadWriteMany"
     storageClass: "nfs"
@@ -100,8 +94,8 @@ galaxy:
       nginx.ingress.kubernetes.io/auth-tls-verify-client: "on"
       nginx.ingress.kubernetes.io/auth-tls-verify-depth: "1"
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    # tls:
-    #   - secretName: "tls-secret"
+    tls:
+      - secretName: "tls-secret"
   postgresql:
     # nodeSelector: "cloud.google.com/gke-nodepool: good-pool"
     persistence:
@@ -117,10 +111,10 @@ galaxy:
   #       name: "{{.Release.Name}}-[galaxykubeman|leo]-configs"
   #       key: WORKSPACE_NAME
   tusd:
-    enabled: false
-  #   ingress:
-  #     tls:
-  #       - secretName: "tls-secret"
+    enabled: true
+    ingress:
+      tls:
+        - secretName: "tls-secret"
   rabbitmq:
     deploy: false
     persistence:
@@ -273,7 +267,6 @@ galaxy:
         execution:
           environments:
             tpv_dispatcher:
-              docker_enabled: false
               tpv_config_files:
                 - https://raw.githubusercontent.com/galaxyproject/tpv-shared-database/main/tools.yml
                 - lib/galaxy/jobs/rules/tpv_rules_local.yml
@@ -568,6 +561,11 @@ galaxy:
                         </div>
                     </div>
                 </div>
+              <div class="container">
+                <footer class="text-center">
+                    <p>Galaxy v{{ .Chart.AppVersion }}, GalaxyKubeMan Helm Chart v{{ .Chart.Version }}</p>
+                </footer>
+              </div>
             </body>
         </html>
 
