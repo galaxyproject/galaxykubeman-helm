@@ -68,7 +68,7 @@ galaxyInstallJob:
     timeoutSeconds: 10
 
 galaxy:
-  version: 5.7.0-anvil.1
+  version: 5.7.1-anvil.1
   jobs:
     priorityClass:
       existingClass: "{{ .Release.Namespace }}-priority-class"
@@ -80,7 +80,7 @@ galaxy:
       memory: 60 # in G
   image:
     repository: quay.io/galaxyproject/galaxy-anvil
-    tag: "sync-230-auto"
+    tag: "23.0"
   persistence:
     accessMode: "ReadWriteMany"
     storageClass: "nfs"
@@ -111,7 +111,7 @@ galaxy:
   #       name: "{{.Release.Name}}-[galaxykubeman|leo]-configs"
   #       key: WORKSPACE_NAME
   tusd:
-    enabled: true
+    enabled: false
     ingress:
       tls:
         - secretName: "tls-secret"
@@ -263,6 +263,13 @@ galaxy:
     galaxy.yml:
       galaxy:
         enable_beta_gdpr: true
+        tus_upload_store: /galaxy/server/database/tmp/tus_upload_store
+        # The URL linked by the "Galaxy/brand" text
+        logo_url: https://anvil.terra.bio/#workspaces
+        # The brand image source
+        logo_src: /static/images/galaxy_project_logo_white_square.png
+        # The custom brand image source
+        logo_src_secondary: /static/images/anvilwhite.png
     job_conf.yml:
         execution:
           environments:
