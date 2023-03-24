@@ -5,3 +5,15 @@ tools:
     scheduling:
       require:
         - local
+  export_remote:
+    params:
+      docker_enabled: false
+    scheduling:
+      require:
+        - local
+  __EXPORT_HISTORY_TO_URI__:
+    params:
+      docker_enabled: false
+    scheduling:
+      require:
+        - local
