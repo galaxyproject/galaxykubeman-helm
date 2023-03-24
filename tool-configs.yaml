@@ -17,3 +17,9 @@ tools:
     scheduling:
       require:
         - local
+  __IMPORT_HISTORY__:
+    params:
+      docker_enabled: false
+    scheduling:
+      require:
+        - local
