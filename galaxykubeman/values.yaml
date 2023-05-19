@@ -68,7 +68,7 @@ galaxyInstallJob:
     timeoutSeconds: 10
 
 galaxy:
-  version: 5.7.1-anvil.1
+  version: 5.7.1-anvil.2
   jobs:
     priorityClass:
       existingClass: "{{ .Release.Namespace }}-priority-class"
