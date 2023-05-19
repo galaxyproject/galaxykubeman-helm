@@ -3,7 +3,7 @@ type: application
 appVersion: "23.0"
 description: A chart for deploying and managing a single Galaxy out-of-the-box instance on Managed Kubernetes clusters (GKE)
 name: galaxykubeman
-version: 2.5.2
+version: 2.6.0
 icon: https://galaxyproject.org/images/galaxy-logos/galaxy_project_logo_square.png
 dependencies:
   - name: nfs-server-provisioner
