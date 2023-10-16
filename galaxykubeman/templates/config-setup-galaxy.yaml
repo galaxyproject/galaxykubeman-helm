@@ -11,7 +11,7 @@ data:
   galaxy.yml: |
     {{- .Values.galaxy | toYaml | nindent 4 }}
   setup_galaxy.sh: |
-    helm repo add anvil https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
+    helm repo add anvil {{ .Values.galaxy.chart.repository }}
     helm repo update
     helm upgrade --install -n {{ .Release.Namespace }} --version {{ .Values.galaxy.version }} {{ .Release.Name }}-galaxy anvil/galaxy -f /scripts/galaxy.yml --set cvmfs.storageClassName="{{ .Release.Name }}-cvmfs" --wait --timeout=15m0s
   check_galaxy.sh: |
