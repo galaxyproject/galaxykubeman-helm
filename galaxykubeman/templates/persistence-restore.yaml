@@ -1,4 +1,5 @@
 {{ if .Values.restore.persistence.nfs.galaxy.pvcID -}}
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -19,8 +20,8 @@ spec:
       storage: {{ .Values.galaxy.persistence.size | quote }}
   volumeMode: Filesystem
   volumeName: "pvc-{{.Values.restore.persistence.nfs.galaxy.pvcID}}"
----
 {{ if .Values.restore.persistence.nfs.galaxy.deployVolume -}}
+---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -58,6 +59,5 @@ spec:
   claimRef:
     namespace: {{ .Release.Namespace }}
     name: {{ .Release.Name }}-galaxy-galaxy-pvc
----
 {{ end -}}
 {{ end -}}
