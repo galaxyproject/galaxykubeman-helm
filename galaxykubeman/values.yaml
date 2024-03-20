@@ -68,7 +68,7 @@ galaxyInstallJob:
     timeoutSeconds: 10
 
 galaxy:
-  version: 5.7.6-anvil.1
+  version: 5.9.0-anvil.1
   chart:
     repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
   jobs:
@@ -82,7 +82,7 @@ galaxy:
       memory: 60 # in G
   image:
     repository: quay.io/galaxyproject/galaxy-anvil
-    tag: "23.1"
+    tag: "24.0"
   persistence:
     accessMode: "ReadWriteMany"
     storageClass: "nfs"
