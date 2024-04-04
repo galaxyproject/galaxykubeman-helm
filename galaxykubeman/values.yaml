@@ -7,6 +7,14 @@ configs: {}
 secrets: {}
   # db-password: changeme
 
+# The following values are used to configure the resources that can be allocated
+# to tools.  These values should be passed in by Leo.
+# https://github.com/DataBiosphere/leonardo/blob/60fb6ba708a40200b3d33ea9cec7e75e1e81f328/http/src/main/scala/org/broadinstitute/dsde/workbench/leonardo/util/BuildHelmChartValues.scala#L97
+resources:
+  cores: 28
+  mem: 100
+  walltime: 744
+
 restore:
   persistence:
     nfs:
@@ -72,6 +80,19 @@ galaxy:
   chart:
     repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
   jobs:
+    rules:
+      tpv_rules_local.yml:
+        tools:
+          default:
+            rules:
+            - id: resource_params_defined
+              if: |
+                param_dict = job.get_param_values(app)
+                param_dict.get('__job_resource', {}).get('__job_resource__select') == 'yes'
+              cores: int(job.get_param_values(app)['__job_resource']['processors'])
+              mem: int(job.get_param_values(app)['__job_resource']['mem'])
+              params:
+                 walltime: "{int(job.get_param_values(app)['__job_resource']['time'])}"
     priorityClass:
       existingClass: "{{ .Release.Namespace }}-priority-class"
     maxRequests:
@@ -275,14 +296,25 @@ galaxy:
         logo_src: /static/images/galaxy_project_logo_white_square.png
         # The custom brand image source
         logo_src_secondary: /static/images/anvilwhite.png
+        # Enable resource parameter configuration
+        job_resource_params_file: "/galaxy/server/config/job_resource_params_conf.xml"
     job_conf.yml:
-        execution:
-          environments:
-            tpv_dispatcher:
-              tpv_config_files:
-                - https://raw.githubusercontent.com/galaxyproject/tpv-shared-database/main/tools.yml
-                - lib/galaxy/jobs/rules/tpv_rules_local.yml
-                - https://raw.githubusercontent.com/galaxyproject/galaxykubeman-helm/anvil/tool-configs.yaml
+      resources:
+        default: default
+        groups:
+          default: [ processors, mem, time ]
+      tools:
+        - class: local
+          resources: default
+        - class: requires_galaxy
+          resources: default
+      execution:
+        environments:
+          tpv_dispatcher:
+            tpv_config_files:
+              - https://raw.githubusercontent.com/galaxyproject/tpv-shared-database/main/tools.yml
+              - lib/galaxy/jobs/rules/tpv_rules_local.yml
+              - https://raw.githubusercontent.com/galaxyproject/galaxykubeman-helm/anvil/tool-configs.yaml
     file_sources_conf.yml:
       - doc: "{{ .Values.terra.launch.workspace }}"
         id: "{{ .Values.terra.launch.workspace }}"
@@ -399,6 +431,20 @@ galaxy:
       memory: 8G
       ephemeral-storage: 20Gi
   extraFileMappings:
+    /galaxy/server/config/job_resource_params_conf.xml:
+      useSecret: false
+      applyToJob: true
+      applyToWeb: true
+      applyToSetupJob: false
+      applyToWorkflow: true
+      applyToNginx: false
+      tpl: true
+      content: |
+        <parameters>
+          <param label="Processors" name="processors" type="integer" min="1" max="{{ .Values.resources.cores }}" value="" help="Number of processing cores, 'ppn' value (1-{{ .Values.resources.cores }}). Leave blank to use default value." />
+          <param label="Memory" name="mem" type="integer" min="1" max="{{ .Values.resources.mem }}" value="" help="Memory size in gigabytes, 'pmem' value (1-{{ .Values.resources.mem }}). Leave blank to use default value." />
+          <param label="Wall Time" name="time" type="integer" min="1" max="{{ .Values.resources.walltime }}" value="" help="Maximum job time in hours, 'walltime' value (1-{{ .Values.resources.walltime }}). Leave blank to use default value." />
+        </parameters>
     /galaxy/server/static/welcome.html:
       applyToWeb: true
       applyToNginx: true
