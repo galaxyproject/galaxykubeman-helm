@@ -24,6 +24,3 @@ dependencies:
     alias: rabbitmq
     tags:
       - deploy-rabbitmq
-  - name: galaxy
-    repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
-    version: 5.7.6-anvil.1
