@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-galaxy-resource-params-conf
+  labels:
+    app.kubernetes.io/name: {{ include "galaxykubeman.name" . }}
+    helm.sh/chart: {{ include "galaxykubeman.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  job_resource_params_conf.xml: |
+    <parameters>
+      <param label="Processors" name="processors" type="integer" min="1" max="{{ .Values.limits.cores }}" value="" help="Number of processing cores, 'ppn' value (1-{{ .Values.limits.cores }}). Leave blank to use default value." />
+      <param label="Memory" name="mem" type="integer" min="1" max="{{ .Values.limits.mem }}" value="" help="Memory size in gigabytes, 'pmem' value (1-{{ .Values.limits.mem }}). Leave blank to use default value." />
+      <param label="Wall Time" name="time" type="integer" min="1" max="{{ .Values.limits.walltime }}" value="" help="Maximum job time in hours, 'walltime' value (1-{{ .Values.limits.walltime }}). Leave blank to use default value." />
+    </parameters>
