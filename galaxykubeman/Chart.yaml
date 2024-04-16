@@ -6,6 +6,10 @@ name: galaxykubeman
 version: 2.9.0
 icon: https://galaxyproject.org/images/galaxy-logos/galaxy_project_logo_square.png
 dependencies:
+# The Galaxy helm chart itself is not a listed dependency, and is installed via a separate job within this chart.
+# This is because galaxykubeman also installs dependencies required by the Galaxy helm chart, such as cvmfs.
+# When uninstalling galaxykubeman, having such dependencies uninstalled in parallel to the Galaxy helm chart causes artefacts
+# to be left behind and upgrade/uninstalls to hang.
   - name: nfs-server-provisioner
     repository: https://kubernetes-sigs.github.io/nfs-ganesha-server-and-external-provisioner/
     version: 1.8.0
