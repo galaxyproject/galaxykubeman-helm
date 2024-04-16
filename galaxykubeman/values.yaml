@@ -319,7 +319,7 @@ galaxy:
         environments:
           tpv_dispatcher:
             tpv_config_files:
-              - https://raw.githubusercontent.com/galaxyproject/tpv-shared-database/main/tools.yml
+              - https://gxy.io/tpv/db.yml
               - lib/galaxy/jobs/rules/tpv_rules_local.yml
               - https://raw.githubusercontent.com/galaxyproject/galaxykubeman-helm/anvil/tool-configs.yaml
     file_sources_conf.yml:
