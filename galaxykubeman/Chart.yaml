@@ -1,30 +1,15 @@
 apiVersion: v2
 type: application
-appVersion: "24.1.2.dev0"
+appVersion: "24.2"
 description: A chart for deploying and managing a single Galaxy out-of-the-box instance on Managed Kubernetes clusters (GKE)
 name: galaxykubeman
 version: 2.11.0
 icon: https://galaxyproject.org/images/galaxy-logos/galaxy_project_logo_square.png
 dependencies:
-# The Galaxy helm chart itself is not a listed dependency, and is installed via a separate job within this chart.
-# This is because galaxykubeman also installs dependencies required by the Galaxy helm chart, such as cvmfs.
-# When uninstalling galaxykubeman, having such dependencies uninstalled in parallel to the Galaxy helm chart causes artefacts
-# to be left behind and upgrade/uninstalls to hang.
   - name: nfs-server-provisioner
     repository: https://kubernetes-sigs.github.io/nfs-ganesha-server-and-external-provisioner/
     version: 1.8.0
     alias: nfs
-  - name: galaxy-cvmfs-csi
+  - name: galaxy-deps
     repository: https://raw.githubusercontent.com/cloudve/helm-charts/master/
-    version: 2.5.0
-    condition: cvmfs.deploy
-    alias: cvmfs
-    tags:
-      - deploy-cvmfs
-  - name: rabbitmq-cluster-operator
-    repository: https://charts.bitnami.com/bitnami
-    version: 4.3.22
-    condition: rabbitmq.deploy
-    alias: rabbitmq
-    tags:
-      - deploy-rabbitmq
+    version: 1.0.0

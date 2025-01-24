@@ -25,16 +25,17 @@ persistence:
         gcePersistentDisk:
           # pdName: leo-created-pd
           fsType: ext4
-  postgres:
-    name: "postgres-disk"
-    size: "10Gi"
-    storageClass: "manual"
-    accessMode: ReadWriteOnce
-    persistentVolume:
-      extraSpec:
-        gcePersistentDisk:
-          # pdName: leo-created-pd
-          fsType: ext4
+  # Uncomment when wanting persistence for postgres and use a manually provisioned disk
+  # postgres:
+  #   name: "postgres-disk"
+  #   size: "10Gi"
+  #   storageClass: "manual"
+  #   accessMode: ReadWriteOnce
+  #   persistentVolume:
+  #     extraSpec:
+  #       gcePersistentDisk:
+  #         # pdName: leo-created-pd
+  #         fsType: ext4
 
 nfs:
   persistence:
@@ -51,6 +52,7 @@ nfs:
       - noatime
 
 cvmfs:
+  storageClassName: "{{ .Release.Namespace }}-cvmfs"
   cvmfscsi:
     cache:
       alien:
@@ -68,9 +70,9 @@ galaxyInstallJob:
     timeoutSeconds: 10
 
 galaxy:
-  version: 5.15.0-anvil.1
+  version: 6.0.0
   chart:
-    repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
+    repository: https://raw.githubusercontent.com/cloudve/helm-charts/master/
   jobs:
     priorityClass:
       existingClass: "{{ .Release.Namespace }}-priority-class"
@@ -81,8 +83,9 @@ galaxy:
       cpu: 12
       memory: 60 # in G
   image:
-    repository: quay.io/galaxyproject/galaxy-anvil
-    tag: "24.1.1"
+    # repository: quay.io/galaxyproject/galaxy-anvil
+    repository: quay.io/galaxyproject/galaxy-min
+    tag: "24.2-uid"
   persistence:
     accessMode: "ReadWriteMany"
     storageClass: "nfs"
@@ -113,7 +116,7 @@ galaxy:
   #       name: "{{.Release.Name}}-[galaxykubeman|leo]-configs"
   #       key: WORKSPACE_NAME
   tusd:
-    enabled: false
+    # enabled: false
     ingress:
       tls:
         - secretName: "tls-secret"
@@ -494,60 +497,6 @@ galaxy:
                                 </div>
                             </div>
 
-                            <div class="row">
-                                <div class="col-md-6 p-4">
-                                    <div id="twitter_timeline" style="height: 400px">
-                                        <a
-                                            class="twitter-timeline"
-                                            data-dnt="true"
-                                            height="400"
-                                            href="https://twitter.com/galaxyproject"
-                                            data-widget-id="384667676347363329"
-                                        >
-                                            Tweets by @galaxyproject
-                                        </a>
-                                        <script>
-                                            !(function (d, s, id) {
-                                                var js,
-                                                    fjs = d.getElementsByTagName(s)[0],
-                                                    p = /^http:/.test(d.location) ? "http" : "https";
-                                                if (!d.getElementById(id)) {
-                                                    js = d.createElement(s);
-                                                    js.id = id;
-                                                    js.src = p + "://platform.twitter.com/widgets.js";
-                                                    fjs.parentNode.insertBefore(js, fjs);
-                                                }
-                                            })(document, "script", "twitter-wjs");
-                                        </script>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 p-4">
-                                    <div id="twitter_anvil_timeline" style="height: 400px">
-                                        <a
-                                            class="twitter-timeline"
-                                            data-dnt="true"
-                                            height="400"
-                                            href="https://twitter.com/useAnVIL"
-                                            data-widget-id="384667676347363329"
-                                        >
-                                            Tweets by @galaxyproject
-                                        </a>
-                                        <script>
-                                            !(function (d, s, id) {
-                                                var js,
-                                                    fjs = d.getElementsByTagName(s)[0],
-                                                    p = /^http:/.test(d.location) ? "http" : "https";
-                                                if (!d.getElementById(id)) {
-                                                    js = d.createElement(s);
-                                                    js.id = id;
-                                                    js.src = p + "://platform.twitter.com/widgets.js";
-                                                    fjs.parentNode.insertBefore(js, fjs);
-                                                }
-                                            })(document, "script", "twitter-wjs");
-                                        </script>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="row">
                                 <div class="col-md-12">
                                     <hr />
