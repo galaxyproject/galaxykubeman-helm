@@ -50,16 +50,9 @@ nfs:
       - vers=4.2
       - noatime
 
-cvmfs:
-  storageClassName: "{{ .Release.Namespace }}-cvmfs"
-  cvmfscsi:
-    cache:
-      alien:
-        pvc:
-          name: cvmfs-alien-cache
-        # volumeSpec:
-        #   persistentVolumeClaim:
-        #     claimName: "{{ .Release.Name }}-cvmfs-alien-cache-pvc"
+galaxy-deps:
+  cvmfs:
+    storageClassName: "cvmfs-{{ .Release.Namespace }}"
 
 galaxyInstallJob:
   readinessProbe:
@@ -86,7 +79,7 @@ galaxy:
     tag: "24.2-uid"
   persistence:
     accessMode: "ReadWriteMany"
-    storageClass: "nfs"
+    storageClass: "nfs-{{ .Release.Namespace }}"
     size: "240Gi"
     # existingClaim: "{{ .Release.Name }}-galaxy-pvc"
   ingress:
@@ -104,7 +97,7 @@ galaxy:
     persistence:
       storageClass: "standard"
   cvmfs:
-    deploy: false
+    storageClassName: "cvmfs-{{ .Release.Namespace }}"
   influxdb:
     enabled: false
   extraEnv: []
