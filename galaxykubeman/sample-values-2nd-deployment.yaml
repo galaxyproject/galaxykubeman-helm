@@ -1,0 +1,66 @@
+galaxy:
+  service:
+    type: LoadBalancer
+    port: 80
+  configs:
+    "galaxy.yml":
+      galaxy:
+        admin_users: admin@cloudve.org
+        master_api_key: galaxypassword
+        single_user: admin@cloudve.org
+    "job_conf.yml":
+      runners:
+        k8s:
+          k8s_node_selector: "cloud.google.com/gke-nodepool: pool-2"
+  jobs:
+    rules:
+      # Used during development to ensure jobs will run on smaller instances
+      tpv_rules_local.yml:
+        destinations:
+          k8s:
+            max_cores: 2
+            # Memory must be an integer value, will be in Gi units
+            max_mem: 16
+  nodeSelector:
+    "cloud.google.com/gke-nodepool": "pool-2"
+  persistence:
+    storageClass: "nfs-gkmns-2"
+    size: "200Gi"
+  postgresql:
+    galaxyDatabasePassword: galaxypassword
+    # FIXME: nodeSelector is not working for postgresql?
+    # nodeSelector:
+    #   "cloud.google.com/gke-nodepool": "pool-2"
+    persistence:
+      storageClass: "nfs-gkmns-2"
+      size: 2Gi
+  rabbitmq:
+    nodeSelector:
+      "cloud.google.com/gke-nodepool": "pool-2"
+    persistence:
+      storageClassName: "nfs-gkmns-2"
+      # FIXME: Setting the size for rabbitmq is not working?
+      # size: 1Gi
+  ingress:
+    annotations: {}
+    ingressClassName: ""
+    tls: []
+
+nfs:
+  nodeSelector:
+    "cloud.google.com/gke-nodepool": "pool-2"
+  persistence:
+    existingClaim: "galaxy-nfs-2-pvc"
+  storageClass:
+    name: "nfs-gkmns-2"
+
+persistence:
+  nfs:
+    name: "galaxy-nfs-2"
+    persistentVolume:
+      extraSpec:
+        gcePersistentDisk:
+          pdName: "nfs-pd-2"
+
+rbac:
+  serviceAccount: gkm2-gkm-cm-svc-account

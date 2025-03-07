@@ -32,16 +32,6 @@ persistence:
         gcePersistentDisk:
           # pdName: leo-created-pd
           fsType: ext4
-  postgres:
-    name: "galaxy-postgres"
-    size: "10Gi"
-    storageClass: "-"
-    accessMode: ReadWriteOnce
-    persistentVolume:
-      extraSpec:
-        gcePersistentDisk:
-          # pdName: leo-created-pd
-          fsType: ext4
 
 nfs:
   persistence:
