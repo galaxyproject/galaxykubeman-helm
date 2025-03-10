@@ -28,9 +28,11 @@ galaxy:
     size: "200Gi"
   postgresql:
     galaxyDatabasePassword: galaxypassword
-    # FIXME: nodeSelector is not working for postgresql?
-    # nodeSelector:
-    #   "cloud.google.com/gke-nodepool": "default-pool"
+    operator:
+      operatorSpecExtra:
+        affinity:
+          nodeSelector:
+            "cloud.google.com/gke-nodepool": "default-pool"
     persistence:
       storageClass: "nfs-gkmns"
       size: 2Gi
