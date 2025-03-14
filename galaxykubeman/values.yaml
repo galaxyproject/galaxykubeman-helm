@@ -280,7 +280,7 @@ galaxy:
                 - https://raw.githubusercontent.com/galaxyproject/galaxykubeman-helm/anvil/tool-configs.yaml
     file_sources_conf.yml:
       - doc: "{{ .Values.terra.launch.workspace }}"
-        id: "{{ .Values.terra.launch.workspace }}"
+        id: terra-launch-workspace
         workspace: "{{ .Values.terra.launch.workspace }}"
         namespace: "{{ .Values.terra.launch.namespace }}"
         type: anvil
