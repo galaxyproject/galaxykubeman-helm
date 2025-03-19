@@ -1,5 +1,6 @@
 {{- range $key, $entry := .Values.persistence -}}
 {{- if $entry -}}
+{{- if not (eq $key "postgres") -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -41,7 +42,7 @@ spec:
   {{- $nowhitespace := (regexReplaceAll "{{\\s*([^}\\s]+)\\s*}}" $nomultiline "{{$1}}") -}}
   {{- tpl $nowhitespace $ | trim | nindent 2 -}}
   {{- end }}
-
+{{ end -}}
 ---
 
 {{ if $entry.persistentVolume }}
@@ -85,9 +86,11 @@ spec:
     - {{ tpl $entry.accessMode $ | quote }}
   capacity:
     storage: {{ tpl $entry.size $ | quote }}
+  {{- if not (eq $key "postgres") }}
   claimRef:
     namespace: {{ $.Release.Namespace }}
     name: {{ tpl $entry.name $ }}-pvc
+  {{- end }}
   {{- if $entry.persistentVolume.extraSpec -}}
   {{- $original := (toYaml $entry.persistentVolume.extraSpec) -}}
   {{- $nomultiline := (regexReplaceAll "^^\\s*\\|\\n*" $original "") -}}

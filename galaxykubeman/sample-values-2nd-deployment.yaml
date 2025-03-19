@@ -33,9 +33,9 @@ galaxy:
         affinity:
           nodeSelector:
             "cloud.google.com/gke-nodepool": "pool-2"
-    persistence:
-      storageClass: "nfs-gkmns-2"
-      size: 2Gi
+        storage:
+          pvcTemplate:
+            volumeName: "galaxy-postgres-2-pv"
   rabbitmq:
     nodeSelector:
       "cloud.google.com/gke-nodepool": "pool-2"
@@ -63,6 +63,13 @@ persistence:
       extraSpec:
         gcePersistentDisk:
           pdName: "nfs-pd-2"
+  postgres:
+    name: "galaxy-postgres-2"
+    persistentVolume:
+      extraSpec:
+        csi:
+          volumeHandle: "projects/anvil-and-terra-development/zones/us-east1-b/disks/postgres-pd-2"
+
 
 rbac:
   serviceAccount: gkm2-gkm-cm-svc-account

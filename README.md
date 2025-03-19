@@ -9,16 +9,17 @@ create a persistent disk, and then install GKM, which will install Galaxy.
 
 The `sample-values.yaml` file contains the values to deploy a test/dev version
 of GKM. In addition, you will need to copy `sample-auth.yaml` to the `templates`
-folder before deploying a dev instance.
+folder before deploying a dev instance. Also, update the values of `persistence.postgres.persistentVolume.extraSpec.csi.volumeHandle` to the correct project id.
 
 ```console
-gcloud container clusters create example-gke-cluster --cluster-version="1.30" --no-enable-autorepair --disk-size=200 --num-nodes=1 --machine-type=e2-standard-16 --zone "us-east1-b"
+gcloud container clusters create example-gke-cluster --cluster-version="1.30" --no-enable-autorepair --disk-size=200 --num-nodes=1 --machine-type=e2-standard-16 --zone "us-east1-b --addons=GcePersistentDiskCsiDriver"
 
 helm repo add cloudve https://raw.githubusercontent.com/CloudVE/helm-charts/master/
 helm repo update
 helm install --create-namespace -n "galaxy-deps" galaxy-deps cloudve/galaxy-deps --set cvmfs.cvmfscsi.nodeplugin.priorityClassName=""
 
 gcloud compute disks create "nfs-pd" --size 300Gi --zone "us-east1-b"
+gcloud compute disks create "postgres-pd" --size 10Gi --zone "us-east1-b"
 
 git clone https://github.com/galaxyproject/galaxykubeman-helm
 cd galaxykubeman-helm/galaxykubeman
@@ -34,10 +35,12 @@ It will take about 5 minutes for the Galaxy instance to be ready. It will be ava
 To deploy a second Galaxy instance on the same cluster, you can use
 `sample-values-2nd-deployment.yaml` to provide the necessary configurations.
 Before running the following commands, add a new node pool to the existing GKE
-cluster, named `pool-2`, then run the following commands:
+cluster, named `pool-2`, then update the values of `persistence.postgres.persistentVolume.extraSpec.csi.volumeHandle` to the correct project id, and then run the following commands:
 
 ```console
 gcloud compute disks create "nfs-pd-2" --size 300Gi --zone "us-east1-b"
+gcloud compute disks create "postgres-pd-2" --size 10Gi --zone "us-east1-b"
+
 
 helm upgrade --install --create-namespace -n gkmns2 gkm2 . --values sample-values-2nd-deployment.yaml --wait --wait-for-jobs
 ```

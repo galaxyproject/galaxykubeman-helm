@@ -32,6 +32,17 @@ persistence:
         gcePersistentDisk:
           # pdName: leo-created-pd
           fsType: ext4
+  postgres:
+    name: "galaxy-postgres"
+    size: "10Gi"
+    storageClass: "manual"
+    accessMode: ReadWriteOnce
+    persistentVolume:
+      extraSpec:
+        csi:
+          driver: pd.csi.storage.gke.io
+          # volumeHandle: "projects/{project_id}/zones/us-east1-b/disks/{disk_name}"
+          fsType: ext4
 
 nfs:
   persistence:
@@ -73,6 +84,19 @@ galaxy:
     storageClass: "nfs-{{ .Release.Namespace }}"
     size: "240Gi"
     # existingClaim: "{{ .Release.Name }}-galaxy-pvc"
+  postgresql:
+    operator:
+      operatorSpecExtra:
+        storage:
+          size: 10Gi
+          pvcTemplate:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 10Gi
+            volumeName: "galaxy-postgres-pv"
+            storageClassName: "manual"
   ingress:
     enabled: true
     annotations:
