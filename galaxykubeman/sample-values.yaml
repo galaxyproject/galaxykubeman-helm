@@ -1,7 +1,13 @@
 galaxy:
+  version: '6.1.1'
+  chart:
+    repository: https://ksuderman.github.io/helm_charts
   service:
     type: LoadBalancer
     port: 80
+  serviceAccount:
+    annotations:
+      iam.gke.io/gcp-service-account: cnpg-backup-sa@anvil-and-terra-development.iam.gserviceaccount.com
   configs:
     "galaxy.yml":
       galaxy:
@@ -28,6 +34,12 @@ galaxy:
     size: "200Gi"
   postgresql:
     galaxyDatabasePassword: galaxypassword
+    recovery:
+      enabled: false
+      path: gs://ks-anvil-bucket
+    backup:
+      enabled: true
+      path: gs://ks-anvil-bucket
     operator:
       operatorSpecExtra:
         affinity:
@@ -35,6 +47,7 @@ galaxy:
             "cloud.google.com/gke-nodepool": "default-pool"
         storage:
           pvcTemplate:
+            storageClassName: "standard"
             volumeName: "galaxy-postgres-pv"
   rabbitmq:
     nodeSelector:
@@ -61,12 +74,12 @@ persistence:
     persistentVolume:
       extraSpec:
         gcePersistentDisk:
-          pdName: "nfs-pd"
+          pdName: "ks-nfs-pd"
   postgres:
     persistentVolume:
       extraSpec:
         csi:
-          volumeHandle: "projects/anvil-and-terra-development/zones/us-east1-b/disks/postgres-pd"
+          volumeHandle: "projects/anvil-and-terra-development/zones/us-east1-b/disks/ks-postgres-pd"
 
 rbac:
   serviceAccount: gkm-gkm-cm-svc-account
