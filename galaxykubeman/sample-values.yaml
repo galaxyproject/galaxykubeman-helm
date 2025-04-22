@@ -33,6 +33,7 @@ galaxy:
     storageClass: "nfs-gkmns"
     size: "200Gi"
   postgresql:
+    postgresqlPostgresPassword: postgres
     galaxyDatabasePassword: galaxypassword
     recovery:
       enabled: false

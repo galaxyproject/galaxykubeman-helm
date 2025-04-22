@@ -1,0 +1,81 @@
+{{ if .Values.restore.postgres -}}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-resume-galaxy"
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      name: "{{ .Release.Name }}-resume-galaxy"
+      labels:
+        app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+        app.kubernetes.io/instance: {{ .Release.Name | quote }}
+        helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    spec:
+      serviceAccountName: "{{ .Values.rbac.serviceAccount }}"
+      restartPolicy: Never
+      securityContext:
+        runAsUser: 0
+      containers:
+      - name: kubectl-galaxy-resume
+        image: "galaxy/cloudman-server:latest"
+        args:
+          - "sh"
+          - "/scripts/restore_database.sh"
+        volumeMounts:
+          - name: galaxy-conf-files
+            mountPath: /scripts
+          - name: postgres-pvc
+            mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: galaxy-conf-files
+          configMap:
+            name: "{{ .Release.Name }}-resume"
+        - name: postgres-pvc
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-galaxy-postgres-1
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-resume
+  labels:
+    app.kubernetes.io/name: {{ include "galaxykubeman.name" . }}
+    helm.sh/chart: {{ include "galaxykubeman.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  restore_database.sh: |
+    echo "Waiting for all deployments to be ready"
+    for deployment in $(kubectl get deployments -n {{ .Release.Namespace }} -o jsonpath='{.items[*].metadata.name}') ; do
+      kubectl rollout status deployment $deployment -n {{ .Release.Namespace }} --timeout=15m0s --watch
+    done
+    echo "Hibernating cluster"
+    cluster=$(kubectl get cluster -n {{ .Release.Namespace }} -o jsonpath='{.items[0].metadata.name}')
+    kubectl annotate cluster $cluster -n {{ .Release.Namespace }} --overwrite cnpg.io/hibernation=on
+    cd /var/lib/postgresql/data
+    pwd
+    ls -alh
+    existing=$(find . -name "pgdata_*" -type d -print -quit)
+    if [ -z "$existing" ]; then
+      echo "No existing backup found"
+      exit 1
+    fi
+    echo "Removing the new pgdata"
+    if [ ! -e backups ] ; then
+        mkdir backups
+    fi
+    mv pgdata backups/pgdata_$(date +%Y%m%dT%H%M%SZ)
+    echo "Restoring backup: $existing"
+    mv $existing pgdata
+    ls -alh
+    echo "Resuming cluster"
+    kubectl annotate cluster $cluster -n {{ .Release.Namespace }} --overwrite cnpg.io/hibernation=off
+    echo "Done."
+    {{- end }}

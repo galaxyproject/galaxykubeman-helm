@@ -11,6 +11,7 @@ metadata:
     "helm.sh/hook-weight": "1"
     "helm.sh/hook-delete-policy": hook-succeeded
 spec:
+  ttlSecondsAfterFinished: 600
   template:
     metadata:
       name: "{{ .Release.Name }}-pre-delete-job"
@@ -28,8 +29,12 @@ spec:
           - "sh"
           - "-c"
           - >
+            echo "[`date`] Hibernating the postgres cluster...";
+            cluster=$(kubectl get cluster -n {{ .Release.Namespace }} -o jsonpath='{.items[0].metadata.name}');
+            kubectl annotate cluster $cluster -n {{ .Release.Namespace }} --overwrite cnpg.io/hibernation=on;
             echo "[`date`] Deleting the galaxy deployment...";
             helm uninstall -n {{ .Release.Namespace }} {{ .Release.Name }}-galaxy --wait;
             echo "[`date`] Deleting this pre-delete job...";
+            kubectl get job -n {{ .Release.Namespace }} -o name;
             kubectl get job -n {{ .Release.Namespace }} -o name | grep -v "pre-delete" | xargs kubectl delete -n {{ .Release.Namespace }};
             echo "[`date`] Pre-delete job has completed.";

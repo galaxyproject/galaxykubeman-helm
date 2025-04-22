@@ -1,17 +1,9 @@
 galaxy:
   persistence:
     existingClaim: gkm-galaxy-galaxy-pvc
-  postgresql:
-    recovery:
-      enabled: true
-      path: gs://ks-anvil-bucket
-    backup:
-      enabled: false
-      path: gs://ks-anvil-bucket
-#      snapshot: galaxy-snapshot-1
 restore:
   persistence:
     nfs:
       galaxy:
         deployVolume: true
-        pvcID: adc6c4c8-c983-4985-8255-6bb4e8f6df6c
+        pvcID: e6a42a35-ddfb-47d1-bc37-f4fc1b25d36d
