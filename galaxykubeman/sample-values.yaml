@@ -48,7 +48,6 @@ galaxy:
             "cloud.google.com/gke-nodepool": "default-pool"
         storage:
           pvcTemplate:
-            storageClassName: "standard"
             volumeName: "galaxy-postgres-pv"
   rabbitmq:
     nodeSelector:

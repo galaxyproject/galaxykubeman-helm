@@ -35,6 +35,8 @@ spec:
             sleep 20
             echo "[`date`] Deleting the galaxy deployment...";
             helm uninstall -n {{ .Release.Namespace }} {{ .Release.Name }}-galaxy --wait;
+            sleep 5;
+            kubectl get pv | grep galaxy-pvc | awk '{print $1}' | xargs kubectl delete pv;
             echo "[`date`] Deleting this pre-delete job...";
             kubectl get job -n {{ .Release.Namespace }} -o name | grep -v "pre-delete" | xargs kubectl delete -n {{ .Release.Namespace }};
             echo "[`date`] Pre-delete job has completed.";

@@ -2,8 +2,9 @@ galaxy:
   persistence:
     existingClaim: gkm-galaxy-galaxy-pvc
 restore:
+  postgres: true
   persistence:
     nfs:
       galaxy:
         deployVolume: true
-        pvcID: e6a42a35-ddfb-47d1-bc37-f4fc1b25d36d
+        pvcID: 9729a935-e1c1-4c23-ae3b-d64d4fda954d
