@@ -1,4 +1,4 @@
-{{ if .Values.restore.postgres -}}
+{{ if .Values.restore.persistence.nfs.galaxy.pvcID -}}
 ---
 apiVersion: batch/v1
 kind: Job
