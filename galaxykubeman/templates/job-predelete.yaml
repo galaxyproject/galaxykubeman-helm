@@ -58,7 +58,6 @@ data:
       kubectl patch pv $pv -p '{"metadata":{"finalizers":null}}';
       kubectl delete pv $pv;
     done
-    kubectl delete namespace {{ .Release.Namespace }};
     echo "[`date`] Deleting this pre-delete job...";
     kubectl get job -n {{ .Release.Namespace }} -o name | grep -v "pre-delete" | xargs kubectl delete -n {{ .Release.Namespace }};
     echo "[`date`] Pre-delete job has completed.";
