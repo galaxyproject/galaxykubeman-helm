@@ -26,7 +26,7 @@ spec:
       - name: kubectl-galaxy-resume
         image: "galaxy/cloudman-server:latest"
         args:
-          - "sh"
+          - "bash"
           - "/scripts/restore_database.sh"
         volumeMounts:
           - name: galaxy-conf-files
@@ -57,9 +57,7 @@ data:
       kubectl rollout status deployment $deployment -n {{ .Release.Namespace }} --timeout=15m0s --watch
     done
     echo "Hibernating cluster"
-    cluster=$(kubectl get cluster -n {{ .Release.Namespace }} -o jsonpath='{.items[0].metadata.name}')
-    kubectl annotate cluster $cluster -n {{ .Release.Namespace }} --overwrite cnpg.io/hibernation=on
-    sleep 20
+    {{- include "galaxykubeman.hibernate-cluster" . | nindent 4 }}
     cd /var/lib/postgresql/data
     pwd
     ls -alh
@@ -72,7 +70,7 @@ data:
     if [ ! -e backups ] ; then
         mkdir backups
     fi
-    mv pgdata backups/pgdata_$(date +%Y%m%dT%H%M%SZ)
+    mv pgdata backups/$(date +%Y%m%dT%H%M%SZ)
     echo "Restoring backup: $existing"
     mv $existing pgdata
     ls -alh

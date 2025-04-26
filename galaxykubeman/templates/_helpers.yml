@@ -55,3 +55,23 @@ Get default value or max
     {{- .default | int }}
   {{- end }}
 {{- end }}
+
+{{- define "galaxykubeman.hibernate-cluster" -}}
+start_time=$SECONDS
+cluster=$(kubectl get cluster -n {{ .Release.Namespace }} -o jsonpath='{.items[0].metadata.name}')
+kubectl annotate cluster $cluster -n {{ .Release.Namespace }} --overwrite cnpg.io/hibernation=on
+echo "Waiting for cluster $cluster  to hibernate"
+while true; do
+  # Check if "cnpg.io/hibernation" condition is present and status is True
+  status=$(kubectl get cluster $cluster -n {{ .Release.Namespace }} -o jsonpath='{.status.conditions[?(@.type=="cnpg.io/hibernation")].status}')
+  if [ "$status" = "True" ]; then
+      echo "Cluster $cluster is now hibernated."
+      break
+  fi
+  sleep 5
+done
+echo
+dt=$(( SECONDS - start_time ))
+printf "Hibernation took %d:%02d\n" $(( dt / 60 )) $(( dt % 60 ))
+{{- end }}
+

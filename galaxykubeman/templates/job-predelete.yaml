@@ -1,3 +1,4 @@
+---
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -11,7 +12,7 @@ metadata:
     "helm.sh/hook-weight": "1"
     "helm.sh/hook-delete-policy": hook-succeeded
 spec:
-  ttlSecondsAfterFinished: 600
+  ttlSecondsAfterFinished: 120
   template:
     metadata:
       name: "{{ .Release.Name }}-pre-delete-job"
@@ -26,17 +27,38 @@ spec:
       - name: pre-delete-kubectl
         image: "galaxy/cloudman-server:latest"
         args:
-          - "sh"
-          - "-c"
-          - >
-            echo "[`date`] Hibernating the postgres cluster...";
-            cluster=$(kubectl get cluster -n {{ .Release.Namespace }} -o jsonpath='{.items[0].metadata.name}');
-            kubectl annotate cluster $cluster -n {{ .Release.Namespace }} --overwrite cnpg.io/hibernation=on;
-            sleep 20
-            echo "[`date`] Deleting the galaxy deployment...";
-            helm uninstall -n {{ .Release.Namespace }} {{ .Release.Name }}-galaxy --wait;
-            sleep 5;
-            kubectl get pv | grep galaxy-pvc | awk '{print $1}' | xargs kubectl delete pv;
-            echo "[`date`] Deleting this pre-delete job...";
-            kubectl get job -n {{ .Release.Namespace }} -o name | grep -v "pre-delete" | xargs kubectl delete -n {{ .Release.Namespace }};
-            echo "[`date`] Pre-delete job has completed.";
+          - "bash"
+          - "/scripts/delete.sh"
+        volumeMounts:
+          - name: galaxy-conf-files
+            mountPath: /scripts
+      volumes:
+        - name: galaxy-conf-files
+          configMap:
+            name: "{{ .Release.Name }}-pre-delete-script"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-pre-delete-script
+  labels:
+    app.kubernetes.io/name: {{ include "galaxykubeman.name" . }}
+    helm.sh/chart: {{ include "galaxykubeman.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  delete.sh: |
+    echo "[`date`] Hibernating the postgres cluster..."
+    {{- include "galaxykubeman.hibernate-cluster" . | nindent 4 }}
+    echo "[`date`] Deleting the galaxy deployment...";
+    helm uninstall -n {{ .Release.Namespace }} {{ .Release.Name }}-galaxy --wait;
+    sleep 5;
+    for pv in $(kubectl get pv -o jsonpath='{.items[?(@.status.phase=="Released")].metadata.name}'); do
+      echo "[`date`] Deleting the persistent volume $pv...";
+      kubectl patch pv $pv -p '{"metadata":{"finalizers":null}}';
+      kubectl delete pv $pv;
+    done
+    kubectl delete namespace {{ .Release.Namespace }};
+    echo "[`date`] Deleting this pre-delete job...";
+    kubectl get job -n {{ .Release.Namespace }} -o name | grep -v "pre-delete" | xargs kubectl delete -n {{ .Release.Namespace }};
+    echo "[`date`] Pre-delete job has completed.";
