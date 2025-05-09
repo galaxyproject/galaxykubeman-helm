@@ -62,13 +62,13 @@ persistence:
     persistentVolume:
       extraSpec:
         gcePersistentDisk:
-          pdName: "ea-tmp-nfs-pd-2"
+          pdName: "nfs-pd-2"
   postgres:
     name: "galaxy-postgres-2"
     persistentVolume:
       extraSpec:
         gcePersistentDisk:
-          pdName: "ea-tmp-postgres-pd-2"
+          pdName: "postgres-pd-2"
 
 rbac:
   serviceAccount: gkm2-gkm-cm-svc-account
