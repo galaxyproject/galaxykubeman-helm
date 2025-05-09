@@ -11,9 +11,13 @@ data:
   galaxy.yml: |
     {{- .Values.galaxy | toYaml | nindent 4 }}
   setup_galaxy.sh: |
-    helm repo add anvil {{ .Values.galaxy.chart.repository }}
+    echo "[`date`] Installing Postgres Helm chart..."
+    helm upgrade --install -n {{ .Release.Namespace }} {{ .Release.Name }}-postgres galaxy/galaxy -f /scripts/galaxy.yml --wait --timeout=15m0s --debug
+    helm repo add galaxy {{ .Values.galaxy.chart.repository }}
     helm repo update
-    helm template -n {{ .Release.Namespace }} --version {{ .Values.galaxy.version }} {{ .Release.Name }}-galaxy anvil/galaxy -f /scripts/galaxy.yml --wait --timeout=15m0s --debug
-    helm upgrade --install -n {{ .Release.Namespace }} --version {{ .Values.galaxy.version }} {{ .Release.Name }}-galaxy anvil/galaxy -f /scripts/galaxy.yml --wait --timeout=15m0s --debug
+    helm template -n {{ .Release.Namespace }} --version {{ .Values.galaxy.version }} {{ .Release.Name }}-galaxy galaxy/galaxy -f /scripts/galaxy.yml --debug
+    echo "[`date`] Installing Galaxy Helm chart..."
+    helm upgrade --install -n {{ .Release.Namespace }} --version {{ .Values.galaxy.version }} {{ .Release.Name }}-galaxy galaxy/galaxy -f /scripts/galaxy.yml --wait --timeout=15m0s --debug
+    echo "[`date`] Galaxy setup job complete."
   check_galaxy.sh: |
     if [ "$(helm status -n {{ .Release.Namespace }} {{ .Release.Name }}-galaxy | grep 'STATUS' | awk -F': ' '{print $2}')" = "deployed" ]; then exit 0; else exit 1; fi;

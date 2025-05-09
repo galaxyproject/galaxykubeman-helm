@@ -11,6 +11,7 @@ metadata:
     "helm.sh/hook-weight": "1"
     "helm.sh/hook-delete-policy": hook-succeeded
 spec:
+  backoffLimit: 0
   template:
     metadata:
       name: "{{ .Release.Name }}-pre-delete-job"
@@ -24,12 +25,16 @@ spec:
       containers:
       - name: pre-delete-kubectl
         image: "galaxy/cloudman-server:latest"
+        command: ["/bin/bash", "-c"]
+        env:
+          - name: CLUSTER_NAME
+            value: gkm-galaxy-postgres
         args:
-          - "sh"
-          - "-c"
-          - >
-            echo "[`date`] Deleting the galaxy deployment...";
-            helm uninstall -n {{ .Release.Namespace }} {{ .Release.Name }}-galaxy --wait;
-            echo "[`date`] Deleting this pre-delete job...";
-            kubectl get job -n {{ .Release.Namespace }} -o name | grep -v "pre-delete" | xargs kubectl delete -n {{ .Release.Namespace }};
-            echo "[`date`] Pre-delete job has completed.";
+          - |
+            echo "[`date`] Uninstalling Galaxy Helm release..."
+            helm uninstall -n {{ .Release.Namespace }} {{ .Release.Name }}-galaxy --wait
+
+            echo "[`date`] Cleaning up old jobs..."
+            kubectl get job -n {{ .Release.Namespace }} -o name | grep -v "pre-delete" | xargs kubectl delete -n {{ .Release.Namespace }}
+
+            echo "[`date`] Pre-delete job has completed."

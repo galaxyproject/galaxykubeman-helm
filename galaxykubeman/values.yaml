@@ -12,7 +12,8 @@ restore:
     nfs:
       galaxy:
         deployVolume: true
-        # pvcID: pvc-uuid
+        # When pvcID is set, also must set galaxy.persistence.existingClaim
+        # pvcID: 57681430-eb8f-460f-9eae-294e061c579e
 
 # This is the entry point for data persistence configuration. Existing
 # persistent disk need to be supplied here. PVCs and PVs are then created based
@@ -30,18 +31,17 @@ persistence:
     persistentVolume:
       extraSpec:
         gcePersistentDisk:
-          # pdName: leo-created-pd
+          # pdName: leo-created-nfs-pd
           fsType: ext4
   postgres:
     name: "galaxy-postgres"
     size: "10Gi"
-    storageClass: "manual"
+    storageClass: "-"
     accessMode: ReadWriteOnce
     persistentVolume:
       extraSpec:
-        csi:
-          driver: pd.csi.storage.gke.io
-          # volumeHandle: "projects/{project_id}/zones/us-east1-b/disks/{disk_name}"
+        gcePersistentDisk:
+          # pdName: leo-created-pg-pd
           fsType: ext4
 
 nfs:
@@ -58,6 +58,17 @@ nfs:
     mountOptions:
       - vers=4.2
       - noatime
+
+postgresql:
+  auth:
+    username: galaxydbuser
+    password: galaxydbpassword
+    database: galaxy
+  primary:
+    size: 10Gi
+    storageClass: "manual"
+    persistence:
+      existingClaim: "galaxy-postgres-pvc"
 
 galaxyInstallJob:
   readinessProbe:
@@ -81,22 +92,18 @@ galaxy:
     tag: "24.2-uid"
   persistence:
     accessMode: "ReadWriteMany"
-    storageClass: "nfs-{{ .Release.Namespace }}"
     size: "240Gi"
-    # existingClaim: "{{ .Release.Name }}-galaxy-pvc"
+    storageClass: "nfs-{{ .Release.Namespace }}"
+    # If existingClaim it set, also set storageClass to "-"
+    # existingClaim: "gkm-galaxy-galaxy-pvc"
+    # storageClass: "-"
   postgresql:
-    operator:
-      operatorSpecExtra:
-        storage:
-          size: 10Gi
-          pvcTemplate:
-            accessModes:
-              - ReadWriteOnce
-            resources:
-              requests:
-                storage: 10Gi
-            volumeName: "galaxy-postgres-pv"
-            storageClassName: "manual"
+    enabled: false
+    existingDatabase: gkm-postgresql
+    galaxyDatabasePassword: galaxydbpassword
+    galaxyExistingSecret: gkm-postgresql
+    galaxyExistingSecretKeyRef: password
+    galaxyConnectionParams: ""
   ingress:
     enabled: true
     annotations:

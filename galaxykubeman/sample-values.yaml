@@ -26,16 +26,6 @@ galaxy:
   persistence:
     storageClass: "nfs-gkmns"
     size: "200Gi"
-  postgresql:
-    galaxyDatabasePassword: galaxypassword
-    operator:
-      operatorSpecExtra:
-        affinity:
-          nodeSelector:
-            "cloud.google.com/gke-nodepool": "default-pool"
-        storage:
-          pvcTemplate:
-            volumeName: "galaxy-postgres-pv"
   rabbitmq:
     nodeSelector:
       "cloud.google.com/gke-nodepool": "default-pool"
@@ -47,6 +37,11 @@ galaxy:
     annotations: {}
     ingressClassName: ""
     tls: []
+
+postgresql:
+  primary:
+    nodeSelector:
+      "cloud.google.com/gke-nodepool": "default-pool"
 
 nfs:
   nodeSelector:
@@ -65,8 +60,8 @@ persistence:
   postgres:
     persistentVolume:
       extraSpec:
-        csi:
-          volumeHandle: "projects/anvil-and-terra-development/zones/us-east1-b/disks/postgres-pd"
+        gcePersistentDisk:
+          pdName: "postgres-pd"
 
 rbac:
   serviceAccount: gkm-gkm-cm-svc-account

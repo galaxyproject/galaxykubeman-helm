@@ -10,3 +10,6 @@ dependencies:
     repository: https://kubernetes-sigs.github.io/nfs-ganesha-server-and-external-provisioner/
     version: 1.8.0
     alias: nfs
+  - name: postgresql
+    repository: oci://registry-1.docker.io/bitnamicharts
+    version: ~16.6.6
