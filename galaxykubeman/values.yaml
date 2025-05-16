@@ -98,7 +98,7 @@ galaxy:
     # existingClaim: "gkm-galaxy-galaxy-pvc"
     # storageClass: "-"
   postgresql:
-    enabled: false
+    deploy: false
     existingDatabase: gkm-postgresql
     galaxyDatabasePassword: galaxydbpassword
     galaxyExistingSecret: gkm-postgresql
