@@ -78,7 +78,7 @@ galaxyInstallJob:
     timeoutSeconds: 10
 
 galaxy:
-  version: 6.1.0
+  version: 6.2.0
   chart:
     repository: https://raw.githubusercontent.com/cloudve/helm-charts/master/
   jobs:
@@ -89,7 +89,7 @@ galaxy:
       memory: 20 # in Gi
   image:
     repository: quay.io/galaxyproject/galaxy-min
-    tag: "24.2-uid"
+    # tag: "25.0.rc1"
   persistence:
     accessMode: "ReadWriteMany"
     size: "240Gi"
@@ -402,7 +402,6 @@ galaxy:
       memory: 2G
       ephemeral-storage: 5Gi
     limits:
-      cpu: 2
       memory: 8G
       ephemeral-storage: 20Gi
   extraFileMappings:
