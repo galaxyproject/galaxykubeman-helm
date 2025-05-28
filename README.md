@@ -3,8 +3,8 @@ Helm chart for GalaxyKubeMan (GKM) used for deploying Galaxy on GKE/AnVIL.
 
 ## Creating a GKE cluster and deploying dependencies
 
-Start by launching a GKE cluster, then install the dependencies chart that deploys
-necessary operators, and then create persistent disks.
+Start by launching a GKE cluster, then install the Galaxy dependencies chart that deploys
+necessary operators, as well as create persistent disks.
 
 ```console
 gcloud container clusters create example-gke-cluster --cluster-version="1.30" --no-enable-autorepair --disk-size=200 --num-nodes=1 --machine-type=e2-standard-16 --zone "us-east1-b"
@@ -18,8 +18,6 @@ gcloud compute disks create "nfs-pd" --size 300Gi --zone "us-east1-b"
 gcloud compute disks create "postgres-pd" --size 10Gi --zone "us-east1-b"
 ```
 
-It will take about 5 minutes for the Galaxy instance to be ready. It will be available at http://[galaxy-nginx service external IP]/galaxy/.
-
 ## Deploying a new Galaxy instance
 
 Once the cluster is created, you can deploy a new Galaxy instance. The
@@ -27,10 +25,16 @@ Once the cluster is created, you can deploy a new Galaxy instance. The
 with no/minimal configuration. Consider the following changes:
 
 - If you changed the names or the persistent disks from the instructions above,
-just update those values in `persistence.[nfs,
-postgres].persistentVolume.extraSpec.gcePersistentDisk.pdName`;
-- Set the value of `galaxy.persistence.existingDatabase` to `{{ release-name }}-postgresql` using the string literal, and not a template variable.
-- Set the value of `galaxy.persistence.galaxyExistingSecret` to `{{ release-name }}-postgresql` using the string literal, and not a template variable.
+  just update those values in `persistence.[nfs,
+  postgres].persistentVolume.extraSpec.gcePersistentDisk.pdName`;
+- If you plan on changing the release name from `gkm` used in the helm command
+  below, set the value of `galaxy.persistence.existingDatabase` to `{{
+  release-name }}-postgresql` using the string literal, and not a template
+  variable.
+- If you plan on changing the release name from `gkm` used in the helm command
+  below, set the value of `galaxy.persistence.galaxyExistingSecret` to `{{
+  release-name }}-postgresql` using the string literal, and not a template
+  variable.
 
 Then run the following commands:
 
@@ -42,7 +46,9 @@ helm dependency update
 helm upgrade --install --create-namespace -n gkmns gkm . --values sample-values.yaml --wait --wait-for-jobs
 ```
 
-**Note:** If you will want to redeploy this instance, before deleting it, make sure to record the ID of the Galaxy PVC.
+It will take about 5 minutes for the Galaxy instance to be ready. It will be available at http://[galaxy-nginx service external IP]/galaxy/.
+
+**Note:** If you will want to redeploy this instance (ie, keep the data), before deleting it, make sure to record the ID of the Galaxy PVC.
 
 ## Redeploying a Galaxy instance
 If you want to redeploy a Galaxy instance, meaning create a new instance but
