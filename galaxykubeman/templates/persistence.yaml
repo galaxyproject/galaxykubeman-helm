@@ -1,5 +1,6 @@
 {{- range $key, $entry := .Values.persistence -}}
 {{- if $entry -}}
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -42,10 +43,8 @@ spec:
   {{- tpl $nowhitespace $ | trim | nindent 2 -}}
   {{- end }}
 
----
-
 {{ if $entry.persistentVolume }}
-
+---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -94,8 +93,6 @@ spec:
   {{- $nowhitespace := (regexReplaceAll "{{\\s*([^}\\s]+)\\s*}}" $nomultiline "{{$1}}") -}}
   {{- tpl $nowhitespace $ | trim | nindent 2 -}}
   {{- end }}
-
----
 
 {{ end -}}
 {{- end -}}

@@ -10,6 +10,9 @@ metadata:
     app.kubernetes.io/managed-by: "{{ .Release.Service }}"
   finalizers:
     - kubernetes.io/pvc-protection
+  annotations:
+    meta.helm.sh/release-name: "{{ .Release.Name }}"
+    meta.helm.sh/release-namespace: "{{ .Release.Namespace }}"
 spec:
   storageClassName: "{{ .Values.galaxy.persistence.storageClass }}"
   accessModes:
@@ -49,7 +52,7 @@ spec:
   nfs:
     path: "/export/pvc-{{.Values.restore.persistence.nfs.galaxy.pvcID}}"
     server: "{{ .Release.Name }}-nfs.{{ .Release.Namespace }}.svc.cluster.local"
-  persistentVolumeReclaimPolicy: Retain
+  persistentVolumeReclaimPolicy: Delete
   storageClassName: "{{ .Values.galaxy.persistence.storageClass }}"
   accessModes:
     - {{ .Values.galaxy.persistence.accessMode }}
