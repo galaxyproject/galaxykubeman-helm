@@ -8,6 +8,7 @@ metadata:
     helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
 spec:
   ttlSecondsAfterFinished: 600
+  backoffLimit: 0
   template:
     metadata:
       name: "{{ .Release.Name }}-setup-galaxy"

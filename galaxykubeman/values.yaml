@@ -7,46 +7,47 @@ configs: {}
 secrets: {}
   # db-password: changeme
 
-# The following values are used to configure the resources that can be allocated
-# to tools.  These values should be passed in by Leo.
-# https://github.com/DataBiosphere/leonardo/blob/60fb6ba708a40200b3d33ea9cec7e75e1e81f328/http/src/main/scala/org/broadinstitute/dsde/workbench/leonardo/util/BuildHelmChartValues.scala#L97
-limits:
-  cores: 28
-  mem: 100
-  walltime: 744
-
 restore:
   persistence:
     nfs:
       galaxy:
         deployVolume: true
-        # pvcID: pvc-uuid
+        # When pvcID is set, also must set galaxy.persistence.existingClaim
+        # pvcID: 57681430-eb8f-460f-9eae-294e061c579e
 
+# This is the entry point for data persistence configuration. Existing
+# persistent disk need to be supplied here. PVCs and PVs are then created based
+# on this configuration.
 persistence:
   nfs:
-    name: "nfs-disk"
+    # Base name for the NFS PVC and PV
+    name: "galaxy-nfs"
+    # Size of the persistent volume from the infrastructure provider
     size: "250Gi"
-    storageClass: "manual"
+    # Unless using a StorageClass that will create appropriate backing storage
+    # (e.g., GCE PD, AWS EBS), this should be set to "-"
+    storageClass: "-"
     accessMode: ReadWriteOnce
     persistentVolume:
       extraSpec:
         gcePersistentDisk:
-          # pdName: leo-created-pd
+          # pdName: leo-created-nfs-pd
           fsType: ext4
   postgres:
-    name: "postgres-disk"
+    name: "galaxy-postgres"
     size: "10Gi"
-    storageClass: "manual"
+    storageClass: "-"
     accessMode: ReadWriteOnce
     persistentVolume:
       extraSpec:
         gcePersistentDisk:
-          # pdName: leo-created-pd
+          # pdName: leo-created-pg-pd
           fsType: ext4
 
 nfs:
   persistence:
     enabled: true
+    # WHAT DOES THIS DO?
     storageClass: "standard"
     size: "250Gi"
   storageClass:
@@ -58,15 +59,16 @@ nfs:
       - vers=4.2
       - noatime
 
-cvmfs:
-  cvmfscsi:
-    cache:
-      alien:
-        pvc:
-          name: cvmfs-alien-cache
-        # volumeSpec:
-        #   persistentVolumeClaim:
-        #     claimName: "{{ .Release.Name }}-cvmfs-alien-cache-pvc"
+postgresql:
+  auth:
+    username: galaxydbuser
+    password: galaxydbpassword
+    database: galaxy
+  primary:
+    size: 10Gi
+    storageClass: "manual"
+    persistence:
+      existingClaim: "galaxy-postgres-pvc"
 
 galaxyInstallJob:
   readinessProbe:
@@ -76,10 +78,17 @@ galaxyInstallJob:
     timeoutSeconds: 10
 
 galaxy:
-  version: 5.9.0-anvil.1
+  version: 6.2.0
   chart:
-    repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
+    repository: https://raw.githubusercontent.com/cloudve/helm-charts/master/
   jobs:
+    # The following values are used to configure the resources that can be allocated
+    # to tools.  These values should be passed in by Leo.
+    # https://github.com/DataBiosphere/leonardo/blob/60fb6ba708a40200b3d33ea9cec7e75e1e81f328/http/src/main/scala/org/broadinstitute/dsde/workbench/leonardo/util/BuildHelmChartValues.scala#L97
+    user_limits:
+      cores: 256
+      mem: 2048
+      walltime: 744
     rules:
       tpv_rules_local.yml:
         tools:
@@ -97,18 +106,24 @@ galaxy:
       existingClass: "{{ .Release.Namespace }}-priority-class"
     maxRequests:
       cpu: 10
-      memory: 20 # in G
-    maxLimits:
-      cpu: 12
-      memory: 60 # in G
+      memory: 20 # in Gi
   image:
-    repository: quay.io/galaxyproject/galaxy-anvil
-    tag: "24.0"
+    repository: quay.io/galaxyproject/galaxy-min
+    # tag: "25.0.rc1"
   persistence:
     accessMode: "ReadWriteMany"
-    storageClass: "nfs"
     size: "240Gi"
-    # existingClaim: "{{ .Release.Name }}-galaxy-pvc"
+    storageClass: "nfs-{{ .Release.Namespace }}"
+    # If existingClaim it set, also set storageClass to "-"
+    # existingClaim: "gkm-galaxy-galaxy-pvc"
+    # storageClass: "-"
+  postgresql:
+    deploy: false
+    existingDatabase: gkm-postgresql
+    galaxyDatabasePassword: galaxydbpassword
+    galaxyExistingSecret: gkm-postgresql
+    galaxyExistingSecretKeyRef: password
+    galaxyConnectionParams: ""
   ingress:
     enabled: true
     annotations:
@@ -119,12 +134,6 @@ galaxy:
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
     tls:
       - secretName: "tls-secret"
-  postgresql:
-    # nodeSelector: "cloud.google.com/gke-nodepool: good-pool"
-    persistence:
-      storageClass: "standard"
-  cvmfs:
-    deploy: false
   influxdb:
     enabled: false
   extraEnv: []
@@ -134,14 +143,10 @@ galaxy:
   #       name: "{{.Release.Name}}-[galaxykubeman|leo]-configs"
   #       key: WORKSPACE_NAME
   tusd:
-    enabled: false
+    # enabled: false
     ingress:
       tls:
         - secretName: "tls-secret"
-  rabbitmq:
-    deploy: false
-    persistence:
-      storageClassName: "standard"
   terra:
      launch:
         workspace: launchWorkspace
@@ -192,6 +197,7 @@ galaxy:
         </section>
         <section id="expression_tools" name="Expression Tools">
           <tool file="expression_tools/parse_values_from_file.xml"/>
+          <tool file="expression_tools/pick_value.xml"/>
         </section>
         <label id="general_text_label" text="General Text Tools" />
         <section id="text_manipulation" name="Text Manipulation">
@@ -317,7 +323,7 @@ galaxy:
               - https://raw.githubusercontent.com/galaxyproject/galaxykubeman-helm/anvil/tool-configs.yaml
     file_sources_conf.yml:
       - doc: "{{ .Values.terra.launch.workspace }}"
-        id: "{{ .Values.terra.launch.workspace }}"
+        id: terra-launch-workspace
         workspace: "{{ .Values.terra.launch.workspace }}"
         namespace: "{{ .Values.terra.launch.namespace }}"
         type: anvil
@@ -427,7 +433,6 @@ galaxy:
       memory: 2G
       ephemeral-storage: 5Gi
     limits:
-      cpu: 2
       memory: 8G
       ephemeral-storage: 20Gi
   extraVolumes:
@@ -534,60 +539,6 @@ galaxy:
                                 </div>
                             </div>
 
-                            <div class="row">
-                                <div class="col-md-6 p-4">
-                                    <div id="twitter_timeline" style="height: 400px">
-                                        <a
-                                            class="twitter-timeline"
-                                            data-dnt="true"
-                                            height="400"
-                                            href="https://twitter.com/galaxyproject"
-                                            data-widget-id="384667676347363329"
-                                        >
-                                            Tweets by @galaxyproject
-                                        </a>
-                                        <script>
-                                            !(function (d, s, id) {
-                                                var js,
-                                                    fjs = d.getElementsByTagName(s)[0],
-                                                    p = /^http:/.test(d.location) ? "http" : "https";
-                                                if (!d.getElementById(id)) {
-                                                    js = d.createElement(s);
-                                                    js.id = id;
-                                                    js.src = p + "://platform.twitter.com/widgets.js";
-                                                    fjs.parentNode.insertBefore(js, fjs);
-                                                }
-                                            })(document, "script", "twitter-wjs");
-                                        </script>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 p-4">
-                                    <div id="twitter_anvil_timeline" style="height: 400px">
-                                        <a
-                                            class="twitter-timeline"
-                                            data-dnt="true"
-                                            height="400"
-                                            href="https://twitter.com/useAnVIL"
-                                            data-widget-id="384667676347363329"
-                                        >
-                                            Tweets by @galaxyproject
-                                        </a>
-                                        <script>
-                                            !(function (d, s, id) {
-                                                var js,
-                                                    fjs = d.getElementsByTagName(s)[0],
-                                                    p = /^http:/.test(d.location) ? "http" : "https";
-                                                if (!d.getElementById(id)) {
-                                                    js = d.createElement(s);
-                                                    js.id = id;
-                                                    js.src = p + "://platform.twitter.com/widgets.js";
-                                                    fjs.parentNode.insertBefore(js, fjs);
-                                                }
-                                            })(document, "script", "twitter-wjs");
-                                        </script>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="row">
                                 <div class="col-md-12">
                                     <hr />
