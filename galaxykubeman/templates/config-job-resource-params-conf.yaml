@@ -10,13 +10,7 @@ metadata:
 data:
   job_resource_params_conf.xml: |
     <parameters>
-<<<<<<< HEAD
       <param label="Processors" name="processors" type="integer" min="1" max="{{ .Values.galaxy.jobs.user_limits.cores }}" value="" help="Number of processing cores, 'ppn' value (1-{{ .Values.galaxy.jobs.user_limits.cores }}). Leave blank to use default value." />
       <param label="Memory" name="mem" type="integer" min="1" max="{{ .Values.galaxy.jobs.user_limits.mem }}" value="" help="Memory size in gigabytes, 'pmem' value (1-{{ .Values.galaxy.jobs.user_limits.mem }}). Leave blank to use default value." />
       <param label="Wall Time" name="time" type="integer" min="1" max="{{ .Values.galaxy.jobs.user_limits.walltime }}" value="" help="Maximum job time in hours, 'walltime' value (1-{{ .Values.galaxy.jobs.user_limits.walltime }}). Leave blank to use default value." />
-=======
-      <param label="Processors" name="processors" type="integer" min="1" max="{{ .Values.limits.cores }}" value="" help="Number of processing cores, 'ppn' value (1-{{ .Values.limits.cores }}). Leave blank to use default value." />
-      <param label="Memory" name="mem" type="integer" min="1" max="{{ .Values.limits.mem }}" value="" help="Memory size in gigabytes, 'pmem' value (1-{{ .Values.limits.mem }}). Leave blank to use default value." />
-      <param label="Wall Time" name="time" type="integer" min="1" max="{{ .Values.limits.walltime }}" value="" help="Maximum job time in hours, 'walltime' value (1-{{ .Values.limits.walltime }}). Leave blank to use default value." />
->>>>>>> cf21fb3754f608a6ac4550ce8270b9875f1ac085
     </parameters>
