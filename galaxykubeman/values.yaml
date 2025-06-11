@@ -7,14 +7,6 @@ configs: {}
 secrets: {}
   # db-password: changeme
 
-# The following values are used to configure the resources that can be allocated
-# to tools.  These values should be passed in by Leo.
-# https://github.com/DataBiosphere/leonardo/blob/60fb6ba708a40200b3d33ea9cec7e75e1e81f328/http/src/main/scala/org/broadinstitute/dsde/workbench/leonardo/util/BuildHelmChartValues.scala#L97
-limits:
-  cores: 28
-  mem: 100
-  walltime: 744
-
 restore:
   persistence:
     nfs:
@@ -90,6 +82,13 @@ galaxy:
   chart:
     repository: https://raw.githubusercontent.com/cloudve/helm-charts/master/
   jobs:
+    # The following values are used to configure the resources that can be allocated
+    # to tools.  These values should be passed in by Leo.
+    # https://github.com/DataBiosphere/leonardo/blob/60fb6ba708a40200b3d33ea9cec7e75e1e81f328/http/src/main/scala/org/broadinstitute/dsde/workbench/leonardo/util/BuildHelmChartValues.scala#L97
+    user_limits:
+      cores: 256
+      mem: 2048
+      walltime: 744
     rules:
       tpv_rules_local.yml:
         tools:
