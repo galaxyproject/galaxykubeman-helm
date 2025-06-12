@@ -82,6 +82,26 @@ galaxy:
   chart:
     repository: https://raw.githubusercontent.com/cloudve/helm-charts/master/
   jobs:
+    # The following values are used to configure the resources that can be allocated
+    # to tools.  These values should be passed in by Leo.
+    # https://github.com/DataBiosphere/leonardo/blob/60fb6ba708a40200b3d33ea9cec7e75e1e81f328/http/src/main/scala/org/broadinstitute/dsde/workbench/leonardo/util/BuildHelmChartValues.scala#L97
+    user_limits:
+      cores: 256
+      mem: 2048
+      walltime: 744
+    rules:
+      tpv_rules_local.yml:
+        tools:
+          default:
+            rules:
+            - id: resource_params_defined
+              if: |
+                param_dict = job.get_param_values(app)
+                param_dict.get('__job_resource', {}).get('__job_resource__select') == 'yes'
+              cores: int(job.get_param_values(app)['__job_resource']['processors'])
+              mem: int(job.get_param_values(app)['__job_resource']['mem'])
+              params:
+                 walltime: "{int(job.get_param_values(app)['__job_resource']['time'])}"
     priorityClass:
       existingClass: "{{ .Release.Namespace }}-priority-class"
     maxRequests:
@@ -282,14 +302,25 @@ galaxy:
         logo_src: /static/images/galaxy_project_logo_white_square.png
         # The custom brand image source
         logo_src_secondary: /static/images/anvilwhite.png
+        # Enable resource parameter configuration
+        job_resource_params_file: "/galaxy/server/config/job_resource_params_conf.xml"
     job_conf.yml:
-        execution:
-          environments:
-            tpv_dispatcher:
-              tpv_config_files:
-                - https://raw.githubusercontent.com/galaxyproject/tpv-shared-database/main/tools.yml
-                - lib/galaxy/jobs/rules/tpv_rules_local.yml
-                - https://raw.githubusercontent.com/galaxyproject/galaxykubeman-helm/anvil/tool-configs.yaml
+      resources:
+        default: default
+        groups:
+          default: [ processors, mem, time ]
+      tools:
+        - class: local
+          resources: default
+        - class: requires_galaxy
+          resources: default
+      execution:
+        environments:
+          tpv_dispatcher:
+            tpv_config_files:
+              - https://gxy.io/tpv/db.yml
+              - lib/galaxy/jobs/rules/tpv_rules_local.yml
+              - https://raw.githubusercontent.com/galaxyproject/galaxykubeman-helm/anvil/tool-configs.yaml
     file_sources_conf.yml:
       - doc: "{{ .Values.terra.launch.workspace }}"
         id: terra-launch-workspace
@@ -404,6 +435,14 @@ galaxy:
     limits:
       memory: 8G
       ephemeral-storage: 20Gi
+  extraVolumes:
+    - name: job-resource-params-conf
+      configMap:
+        name: "{{ .Release.Name }}-resource-params-conf"
+  extraVolumeMounts:
+    - name: job-resource-params-conf
+      mountPath: /galaxy/server/config/job_resource_params_conf.xml
+      subPath: job_resource_params_conf.xml
   extraFileMappings:
     /galaxy/server/static/welcome.html:
       applyToWeb: true
