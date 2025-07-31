@@ -45,6 +45,8 @@ persistence:
           fsType: ext4
 
 nfs:
+  service:
+    type: ClusterIP  # Will be changed to LoadBalancer by the patcher job
   persistence:
     enabled: true
     # WHAT DOES THIS DO?
@@ -58,6 +60,11 @@ nfs:
     mountOptions:
       - vers=4.2
       - noatime
+      - retrans=2
+      - timeo=30
+      - lock        # Enable NFS locking
+      - hard        # Ensure reliable locking
+      - proto=tcp   # Force TCP protocol to avoid UDP issues
 
 postgresql:
   auth:
@@ -78,7 +85,7 @@ galaxyInstallJob:
     timeoutSeconds: 10
 
 galaxy:
-  version: 6.2.0
+  version: 6.2.1
   chart:
     repository: https://raw.githubusercontent.com/cloudve/helm-charts/master/
   jobs:

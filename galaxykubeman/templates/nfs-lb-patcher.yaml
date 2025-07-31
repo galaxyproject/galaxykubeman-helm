@@ -1,0 +1,127 @@
+# Patch NFS Service to use LoadBalancer with TCP-only ports and Internal annotation
+# This job will run after the NFS service is created.
+# This is required to deploy on GCP because GCP LBs do not support mixing of protocols in the same LB.
+# Meanwhile, in order for a GCP Batch job to mount the NFS service, it needs to be a LoadBalancer type service.
+{{- if .Values.nfs.service.type }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ include "galaxykubeman.fullname" . }}-nfs-lb-patcher"
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "galaxykubeman.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "10"
+    "helm.sh/hook-delete-policy": before-hook-creation
+    "helm.sh/hook-delete-timeout": "900"  # Keep job for 15 minutes (900 seconds)
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        {{- include "galaxykubeman.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: "{{ include "galaxykubeman.fullname" . }}-nfs-patcher"
+      restartPolicy: Never
+      containers:
+      - name: nfs-lb-patcher
+        image: bitnami/kubectl:latest
+        command:
+        - /bin/bash
+        - -c
+        - |
+          set -e
+          echo "Waiting for NFS service to be created..."
+
+          # Discover NFS service by labels from the NFS chart
+          timeout=300
+          interval=5
+          elapsed=0
+
+          while [ $elapsed -lt $timeout ]; do
+            SERVICE_NAME=$(kubectl get service -l "app=nfs,release={{ .Release.Name }}" -n {{ .Release.Namespace }} -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
+            if [ -n "$SERVICE_NAME" ]; then
+              echo "NFS service found: $SERVICE_NAME"
+              break
+            fi
+            echo "Waiting for NFS service with labels 'app=nfs,release={{ .Release.Name }}'... ($elapsed/$timeout seconds)"
+            sleep $interval
+            elapsed=$((elapsed + interval))
+          done
+
+          if [ $elapsed -ge $timeout ]; then
+            echo "ERROR: NFS service with labels 'app=nfs,release={{ .Release.Name }}' not found after $timeout seconds"
+            exit 1
+          fi
+
+          # Patch the service to use LoadBalancer with only TCP ports and Internal annotation
+          kubectl patch service "$SERVICE_NAME" -n {{ .Release.Namespace }} --type='merge' -p='{
+            "spec": {
+              "type": "LoadBalancer",
+              "ports": [
+                {
+                  "name": "nfs",
+                  "port": 2049,
+                  "protocol": "TCP",
+                  "targetPort": 2049
+                },
+                {
+                  "name": "mountd",
+                  "port": 20048,
+                  "protocol": "TCP",
+                  "targetPort": 20048
+                }
+              ]
+            },
+            "metadata": {
+              "annotations": {
+                "cloud.google.com/load-balancer-type": "Internal"
+              }
+            }
+          }'
+
+          echo "Successfully patched NFS service $SERVICE_NAME to use Internal LoadBalancer with TCP-only ports"
+
+          # Wait for LoadBalancer IP to be assigned
+          echo "Waiting for LoadBalancer IP assignment..."
+
+          # Use a more robust approach to wait for LB IP
+          lb_timeout=300
+          lb_interval=10
+          lb_elapsed=0
+
+          while [ $lb_elapsed -lt $lb_timeout ]; do
+            LB_IP=$(kubectl get service "$SERVICE_NAME" -n {{ .Release.Namespace }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "")
+            if [ -n "$LB_IP" ] && [ "$LB_IP" != "" ]; then
+              echo "LoadBalancer IP assigned: $LB_IP"
+              break
+            fi
+            echo "Waiting for LoadBalancer IP... ($lb_elapsed/$lb_timeout seconds)"
+            sleep $lb_interval
+            lb_elapsed=$((lb_elapsed + lb_interval))
+          done
+
+          # Get the final IP status
+          LB_IP=$(kubectl get service "$SERVICE_NAME" -n {{ .Release.Namespace }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "Pending")
+          echo "LoadBalancer IP: $LB_IP"
+
+          # Verify the patch was applied
+          echo "Verifying patch..."
+          echo "Service type:"
+          kubectl get service "$SERVICE_NAME" -n {{ .Release.Namespace }} -o jsonpath='{.spec.type}'
+          echo ""
+          echo "Service ports:"
+          kubectl get service "$SERVICE_NAME" -n {{ .Release.Namespace }} -o jsonpath='{.spec.ports}' | jq .
+          echo ""
+          echo "Service annotations:"
+          kubectl get service "$SERVICE_NAME" -n {{ .Release.Namespace }} -o jsonpath='{.metadata.annotations}' | jq .
+          echo ""
+
+          echo "NFS LoadBalancer setup completed successfully"
+          if [ "$LB_IP" != "Pending" ]; then
+            echo "External clients can now mount using: $LB_IP:2049"
+          else
+            echo "LoadBalancer IP still pending - check service status manually"
+          fi
+{{- end }}

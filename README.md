@@ -7,7 +7,7 @@ Start by launching a GKE cluster, then install the Galaxy dependencies chart tha
 necessary operators, as well as create persistent disks.
 
 ```console
-gcloud container clusters create example-gke-cluster --cluster-version="1.30" --no-enable-autorepair --disk-size=200 --num-nodes=1 --machine-type=e2-standard-16 --zone "us-east1-b"
+gcloud container clusters create example-gke-cluster --cluster-version="1.31" --no-enable-autorepair --disk-size=200 --num-nodes=1 --machine-type=e2-standard-16 --zone "us-east1-b"
 
 
 helm repo add cloudve https://raw.githubusercontent.com/CloudVE/helm-charts/master/
@@ -89,6 +89,15 @@ helm upgrade --install --create-namespace -n gkmns2 gkm2 . --values sample-value
 It will take a few minutes for the second Galaxy instance to be ready. The
 instance will be deployed It will be available at http://[galaxy-nginx-2 service
 external IP]/galaxy/.
+
+## Deleting a deployment
+
+To delete a Galaxy instance, you can run the following command. The GKM chart
+has a job that will delete the Galaxy chart.
+
+```console
+helm uninstall -n gkmns gkm
+```
 
 ## Leo updates
 When the GKM chart version changes, need to make a PR to
