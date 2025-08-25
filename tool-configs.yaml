@@ -23,3 +23,15 @@ tools:
     scheduling:
       require:
         - local
+  toolshed.g2.bx.psu.edu/repos/goeckslab/tabular_learner/tabular_learner/.*:
+    cores: 8
+    mem: 32
+  toolshed.g2.bx.psu.edu/repos/goeckslab/image_learner/image_learner/.*:
+    cores: 8
+    mem: 32
+  toolshed.g2.bx.psu.edu/repos/goeckslab/ludwig_config_generator/ludwig_config_generator/.*:
+    cores: 8
+    mem: 64
+  toolshed.g2.bx.psu.edu/repos/goeckslab/ludwig_experiment/ludwig_experiment/.*:
+    cores: 32
+    mem: 240
