@@ -55,3 +55,23 @@ Get default value or max
     {{- .default | int }}
   {{- end }}
 {{- end }}
+
+{{/*
+Common labels
+*/}}
+{{- define "galaxykubeman.labels" -}}
+helm.sh/chart: {{ include "galaxykubeman.chart" . }}
+{{ include "galaxykubeman.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "galaxykubeman.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "galaxykubeman.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
