@@ -69,7 +69,14 @@ postgresql:
     storageClass: "manual"
     persistence:
       existingClaim: "galaxy-postgres-pvc"
-
+  image:
+    repository: bitnamilegacy/postgresql
+  volumePermissions:
+    image:
+      repository: bitnamilegacy/os-shell
+  metrics:
+    image:
+      repository: bitnamilegacy/postgres-exporter
 galaxyInstallJob:
   readinessProbe:
     initialDelaySeconds: 30
