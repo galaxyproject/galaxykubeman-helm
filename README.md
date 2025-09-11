@@ -48,7 +48,16 @@ helm upgrade --install --create-namespace -n gkmns gkm . --values sample-values.
 
 It will take about 5 minutes for the Galaxy instance to be ready. It will be available at http://[galaxy-nginx service external IP]/galaxy/.
 
-**Note:** If you will want to redeploy this instance (ie, keep the data), before deleting it, make sure to record the ID of the Galaxy PVC.
+## Deleting a Galaxy instance
+
+**Note:** If you will want to redeploy an existing instance (ie, keep the data),
+before deleting it, make sure to record the ID of the Galaxy PVC.
+
+To delete a Galaxy instance, run the following command:
+
+```console
+helm del gkm -n gkmns
+```
 
 ## Redeploying a Galaxy instance
 If you want to redeploy a Galaxy instance, meaning create a new instance but
