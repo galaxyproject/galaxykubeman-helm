@@ -58,6 +58,10 @@ nfs:
     mountOptions:
       - vers=4.2
       - noatime
+# Remove this once the migration away from Bitnami charts is complete.
+global:
+  security:
+    allowInsecureImages: true
 
 postgresql:
   auth:
@@ -69,7 +73,14 @@ postgresql:
     storageClass: "manual"
     persistence:
       existingClaim: "galaxy-postgres-pvc"
-
+  image:
+    repository: bitnamilegacy/postgresql
+  volumePermissions:
+    image:
+      repository: bitnamilegacy/os-shell
+  metrics:
+    image:
+      repository: bitnamilegacy/postgres-exporter
 galaxyInstallJob:
   readinessProbe:
     initialDelaySeconds: 30
