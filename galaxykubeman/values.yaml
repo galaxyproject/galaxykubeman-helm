@@ -102,6 +102,9 @@ galaxy:
     # nodeSelector: "cloud.google.com/gke-nodepool: good-pool"
     persistence:
       storageClass: "standard"
+    image:
+      repository: bitnamilegacy/postgresql
+      tag: 11.6.0-r48
   cvmfs:
     deploy: false
   influxdb:
@@ -121,6 +124,15 @@ galaxy:
     deploy: false
     persistence:
       storageClassName: "standard"
+    rabbitmqImage:
+      repository: bitnamilegacy/rabbitmq
+    credentialUpdaterImage:
+      repository: bitnamilegacy/rmq-default-credential-updater
+    clusterOperator:
+      image:
+        repository: bitnamilegacy/rabbitmq-cluster-operator
+
+
   terra:
      launch:
         workspace: launchWorkspace
