@@ -84,8 +84,7 @@ galaxyInstallJob:
 galaxy:
   version: 5.15.1-anvil.1
   chart:
-    #repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
-    repository: https://ksuderman.github.io/helm_charts
+    repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
   jobs:
     priorityClass:
       existingClass: "{{ .Release.Namespace }}-priority-class"
