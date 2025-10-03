@@ -35,6 +35,20 @@ persistence:
         gcePersistentDisk:
           # pdName: leo-created-pd
           fsType: ext4
+rabbitmq:
+  deploy: true
+  persistence:
+    storageClassName: "standard"
+  rabbitmqImage:
+    repository: bitnamilegacy/rabbitmq
+  credentialUpdaterImage:
+    repository: bitnamilegacy/rmq-default-credential-updater
+  clusterOperator:
+    image:
+      repository: bitnamilegacy/rabbitmq-cluster-operator
+  msgTopologyOperator:
+    image:
+      repository: bitnamilegacy/rmq-messaging-topology-operator
 
 nfs:
   persistence:
@@ -68,9 +82,10 @@ galaxyInstallJob:
     timeoutSeconds: 10
 
 galaxy:
-  version: 5.15.0-anvil.1
+  version: 5.15.1-anvil.1
   chart:
-    repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
+    #repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
+    repository: https://ksuderman.github.io/helm_charts
   jobs:
     priorityClass:
       existingClass: "{{ .Release.Namespace }}-priority-class"
@@ -131,8 +146,9 @@ galaxy:
     clusterOperator:
       image:
         repository: bitnamilegacy/rabbitmq-cluster-operator
-
-
+    msgTopologyOperator:
+      image:
+        repository: bitnamilegacy/rmq-messaging-topology-operator
   terra:
      launch:
         workspace: launchWorkspace
