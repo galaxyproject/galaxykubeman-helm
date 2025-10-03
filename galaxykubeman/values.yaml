@@ -82,7 +82,7 @@ galaxyInstallJob:
     timeoutSeconds: 10
 
 galaxy:
-  version: 5.15.1-anvil.1
+  version: 5.15.0-anvil.2
   chart:
     repository: https://raw.githubusercontent.com/cloudve/helm-charts/anvil/
   jobs:
